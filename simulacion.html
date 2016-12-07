@@ -1,0 +1,165 @@
+ <html>
+   <head>
+   <title>Esta es una pagina web</title>
+   <script type="text/javascript">
+           var NF1 , NF2, NP1 , NP2, T, NE, STL, STP ;
+           var llegadaPedido = terminaImpresion= terminaFabricacion= terminaEmpacado1= terminaEmpacado2 = new Object();
+		   var reposicionPlastico = reposicionLaca= reposicionPintura= reposicionCajas = new Object();		   
+		   var eventosFuturos = new Array();
+           
+		   eventosFuturos.push(llegadaPedido,terminaImpresion,terminaFabricacion,terminaEmpacado1,terminaEmpacado2,
+		   reposicionPlastico,reposicionLaca,reposicionPintura,reposicionCajas);
+		   
+		   llegadaPedido.funcion = funcion;
+		   terminaImpresion.funcion = funcion;
+		   terminaFabricacion.funcion = funcion;
+		   terminaEmpacado1.funcion = funcion;
+		   terminaEmpacado2.funcion = funcion
+		   reposicionPlastico.funcion = funcion;
+		   reposicionLaca.funcion = funcion;
+		   reposicionPintura.funcion = funcion;
+		   reposicionCajas.funcion = funcion;
+		   
+		   eventosFuturos.forEach(function(elemento, indice){elemento.numero = 0;});
+		  
+			llegadaPedido.numero = -1;
+		   function obtenerMinimo() {
+             
+				minimo = eventosFuturos.sort()[0];
+				return minimo.funcion();
+		   }
+		   
+		   function funcion (){
+				return 2*2;
+		   }
+
+		function iniciarSimulacion() {
+			
+			//srand(time(NULL));
+			inicializar();
+			simulacion();
+		}
+
+		function inicializar(){
+			NF1 = NF2 = NP1 = NP2 = 0;
+			T = 0
+		}
+
+		function simulacion(){
+			
+			if()
+			
+		}
+
+
+		function llegadaPedido(){
+		
+			T = llegadaPedido.tiempo;
+			llegadaPedido.tiempo = T + getIntervaloPedido();
+			var r = Math.random();	
+			if(r < 0.95)
+				llegaPedidoCompleto();
+			else
+				llegaSoloImpresion();
+				
+		}
+
+		function getIntervaloPedido(){
+			return 1; //FDP
+		}
+
+		function llegaPedidoCompleto(){
+			
+			tipoProductoPedido = obtenerTipoProducto();
+			ubicarEnColaDeFabricacion();
+			if(NF1 + NF2 == 1 && tipoProductoPedido == maquina.estado()){
+				terminaFabricacion.tiempo = T + obtenerDemoraDeFabricacion();
+			}
+			else{} //calculo de resultados
+
+		}
+
+		function llegaSoloImpresion(){
+			
+			ubicarEnColaDeImpresion();
+			if( NP1 + NP2 == 1){
+				terminaImpresion.tiempo = T + obtenerDemoraDeImpresion();
+			}
+			else {}//calculo de resultados
+			
+		}
+
+		function terminaImpresion(){
+			T = terminaImpresion.tiempo;
+			if(NP1 > 0 || NP2 > 0){
+				terminaImpresion.tiempo = T  + obtenerDemoraDeImpresion();
+			}
+			else {}//no hay más pintado ver que se hace
+		
+			if(NE < 2)
+				if(terminaEmpacado1 == 99999)
+					terminaEmpacado1.tiempo = T + obtenerDemoraDeEmbalado();
+				else
+					terminaEmpacado2.tiempo = T + obtenerDemoraDeEmbalado();
+			
+			if(STL <= 20 && reposicionLaca.tiempo == 99999)
+				reposicionLaca.tiempo = T + 24*60; 
+			
+			if(STP <= 5 && reposicionPintura.tiempo == 99999)
+				reposicionPintura.tiempo = T + 24*60;
+		}
+		
+		function terminaFabricacion(){
+			T = terminaFabricacion.tiempo;
+			if(NF1 > 0 || NF2 > 0)
+				terminaFabricacion.tiempo = T + obtenerDemoraDeFabricacion();
+				
+			if(NP1 + NP2 = 1)
+				terminaImpresion.tiempo = T + obtenerDemoraDeImpresion();
+			
+			if(STPL <= SRPL && reposicionPlastico.tiempo == 99999)
+				reposicionPlastico.tiempo = T + obtenerDemoraDeRecepcionDePlastico();
+			
+		}
+		
+		function terminaEmpacado(terminaEmpacado){
+			T = terminaEmpacado.tiempo;
+			if(NE > 1)
+				terminaEmpacado.tiempo = T + obtenerDemoraDeEmbalado();
+				
+			if(STC <= SRC && reposicionCajas.tiempo == 99999)
+				reposicionCajas.tiempo = T + 24*60;				
+			
+		}
+		
+		function reposicionDePlastico(){
+			STPL = STPL + TPP;
+		}
+		
+		function reposicionDeLaca(){
+			STL = STL + 20;
+		}
+		
+		function reposicionDePintura(){
+			STP = STP + 5;
+		}
+		
+		funcion reposicionDeCajas(){
+			STC = STC + TPC;
+		}
+		
+		function obtenerDemoraDeEmbalado(){
+		};
+		function obtenerDemoraDeFabricacion(){
+		
+		}
+		function obtenerDemoraDeImpresion(){
+		}
+   </script>
+   </head>
+   <body>
+   <script>
+           document.write(iniciarSimulacion());
+   </script>
+   </body>
+   </html>
