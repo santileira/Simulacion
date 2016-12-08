@@ -2,7 +2,26 @@
    <head>
    <title>Esta es una pagina web</title>
    <script type="text/javascript">
-		var NF1 , NF2, NP1 , NP2, T, NE, STL, STP, M, N, TF ;
+		var NF1 , NF2, NI1 , NI2, NE, STP, STL, STPL, STC;//estado
+		var M, N, SRC, SRPL, TPPL, TPC; //control
+		var T,HV,TF;
+		
+		function inicializacion(){
+			debugger;
+			NF1 = 0;
+			NF2 = 0;
+			NI1 = 0; 
+			NI2 = 0;
+			NE = 0;
+			STP = 20;
+			STL = 5;
+			STPL = TPPL;
+			STC = TPC;
+			T = 0;
+			TF = 100000000;
+			HV = 99999;
+		}
+
 		var llegadaPedidoEv = new Object();
 		var terminaImpresionEv = new Object();
 		var terminaFabricacionEv = new Object();
@@ -11,18 +30,17 @@
 		var reposicionPlasticoEv = new Object(); 
 		var reposicionLacaEv = new Object();
 		var reposicionPinturaEv = new Object();
-		var reposicionCajasEv = new Object();		   
+		var reposicionCajasEv = new Object();
+		var maquinaFabricacion = new Object();
+		var maquinaImpresion = new Object();		   
 		var eventosFuturos = new Array();
 		var colaB1F = new Array();
 		var colaB2F = new Array();
 		var colaB1I = new Array();
 		var colaB2I = new Array();
-		var colaB1E = new Array();
-		var colaB2E = new Array();
+		var colaBE = new Array();
 		
-		
-
-		var maquinaFabricacion = maquinaImpresion = new Object();
+	
 		maquinaFabricacion.modulo = 0;
 		maquinaFabricacion.configuracionPomo = 'B1';
 		maquinaFabricacion.cantTipoConsecutivo = M;
@@ -33,7 +51,7 @@
 		maquinaFabricacion.demoraDistintoPedido = 4;
 		maquinaFabricacion.demoraMismoPedido = 2;
 
-		var maquinaImpresion = new Object();
+	
 		maquinaImpresion.modulo = 0;
 		maquinaImpresion.configuracionPomo = 'B1';
 		maquinaImpresion.cantTipoConsecutivo = N;
@@ -44,8 +62,6 @@
 		maquinaImpresion.demoraDistintoPedido = 8;
 		maquinaImpresion.demoraMismoPedido = 4;
 
-		eventosFuturos.push(llegadaPedidoEv,terminaImpresionEv ,terminaFabricacionEv ,terminaEmpacado1Ev ,terminaEmpacado2Ev ,
-		reposicionPlasticoEv ,reposicionLacaEv ,reposicionPinturaEv ,reposicionCajasEv);
 
 		llegadaPedidoEv.funcion = llegadaPedido;
 		terminaImpresionEv.funcion = terminaImpresion;
@@ -56,6 +72,10 @@
 		reposicionLacaEv.funcion = reposicionLaca;
 		reposicionPinturaEv.funcion = reposicionPintura;
 		reposicionCajasEv.funcion = reposicionCajas;
+
+		eventosFuturos.push(llegadaPedidoEv,terminaImpresionEv ,terminaFabricacionEv ,terminaEmpacado1Ev ,terminaEmpacado2Ev ,
+		reposicionPlasticoEv ,reposicionLacaEv ,reposicionPinturaEv ,reposicionCajasEv);
+
 
 		eventosFuturos.forEach(function(elemento, indice){elemento.tiempo = 0;});
 
@@ -72,12 +92,10 @@
 		function iniciarSimulacion() {
 			
 			//srand(time(NULL));
-			inicializar();
+			inicializacion();
 			simulacion();
 		}
 
-		function inicializar(){
-		}
 
 		function simulacion(){
 			do{
@@ -137,14 +155,7 @@
 
 		function ubicarEnColaDeEmpaque(unPedido){
 
-			if(unPedido.tipoPomo == 'B1'){
-				NE1++;
-				colaB1E.push(unPedido);
-			}
-			else{
-				NE2++;
-				colaB2E.push(unPedido);
-			}
+			colaBE.push(unPedido);
 		}
 
 		function llegaPedidoCompleto(unPedido){
@@ -204,39 +215,60 @@
 		function llegaPedidoImpresion(unPedido){
 			
 			ubicarEnColaDeImpresion(unPedido);
-			if( NP1 + NP2 == 1){
+			if( NI1 + NI2 == 1){
+				actualizarEstadoMaquina(maquinaImpresion);
 
-				var demora = obtenerDemoraPreparacion(maquinaImpresion);
+				var demora = obtenerDemoraPreparacion(maquinaImpresion , obtenerTipoPomoAProducir());
 
-				terminaImpresion.tiempo = T + demora + obtenerDemoraDeImpresion(unPedido);
+				terminaImpresionEv.tiempo = T + demora + obtenerDemoraDeImpresion(unPedido);
 			}
 			else {}//calculo de resultados
 			
 		}
 
 		function terminaImpresion(){
-			T = terminaImpresion.tiempo;
-			if(NP1 > 0 || NP2 > 0){
-				var demora = obtenerDemoraPreparacion(maquinaImpresion);
-				var unPedido = obtenerPedidoParaFabricacion();
-				terminaImpresion.tiempo = T  + demora + obtenerDemoraDeImpresion();
+			T = terminaImpresionEv.tiempo;
+
+			var pedidoParaEmpacado = sacarPedidoTerminadoDe(maquinaImpresion);
+
+
+			if(NI1 > 0 || NI2 > 0)
+
+				actualizarEstadoMaquina(maquinaImpresion);
+				var tipoPomoAProducir = obtenerTipoPomoAProducir(maquinaImpresion);
+				var unPedido = obtenerPedidoDe(maquinaImpresion, tipoPomoAProducir);
+				var demora = obtenerDemoraPreparacion(maquinaImpresion, tipoPomoAProducir);
+				terminaImpresionEv.tiempo = T  + demora + obtenerDemoraDeImpresion();
 			}
 			else {}//no hay más pintado ver que se hace
 
-			if(NE < 2)
-				if(terminaEmpacado1 == 99999)
-					terminaEmpacado1.tiempo = T + obtenerDemoraDeEmbalado();
+			
+			if(NE < 2){
+				NE++;
+				if(terminaEmpacado1Ev.tiempo == HV){
+
+					terminaEmpacado1Ev.tiempo = T + obtenerDemoraDeEmbalado(pedidoParaEmpacado);
+				}
 				else
-					terminaEmpacado2.tiempo = T + obtenerDemoraDeEmbalado();
+					terminaEmpacado2Ev.tiempo = T + obtenerDemoraDeEmbalado(pedidoParaEmpacado);
 			
-			if(STL <= 20 && reposicionLaca.tiempo == 99999)
-				reposicionLaca.tiempo = T + 24*60; 
+
+			}
+			else
+				ubicarEnColaDeEmpaque(pedidoParaEmpacado);
 			
-			if(STP <= 5 && reposicionPintura.tiempo == 99999)
-				reposicionPintura.tiempo = T + 24*60;
+			if(STL <= 20 && reposicionLacaEv.tiempo == HV)
+				reposicionLacaEv.tiempo = T + 24*60; 
+			
+			if(STP <= 5 && reposicionPintura.tiempo == HV)
+				reposicionPinturaEv.tiempo = T + 24*60;
 		}
 
 		
+		function obtenerPedidoAEmpacar(){
+
+			return colaBE.shift();
+		}
 
 		function terminaEmpacado(terminaEmpacadoEv){
 			T = terminaEmpacadoEv.tiempo;
