@@ -133,29 +133,18 @@
 			return 1; //FDP
 		}
 
-		function ubicarEnColaDeFabricacion(unPedido){
+		function ubicarEnColaDe(maquina,unPedido){
 
 			if(unPedido.tipoPomo == 'B1'){
-				NF1++;
-				colaB1F.push(unPedido);
+				maquina.numeroCola1++;
+				maquina.cola1.push(unPedido);
 			}else{
-				NF2++;
-				colaB2F.push(unPedido);
+				maquina.numeroCola2++;
+				maquina.cola2.push(unPedido);
 			}
 		}
 
-		function ubicarEnColaDeImpresion(unPedido){
-
-			if(unPedido.tipoPomo == 'B1'){
-				NP1++;
-				colaB1I.push(unPedido);
-			}
-			else{
-				NP2++;
-				colaB2I.push(unPedido);
-			}
-		}
-
+	
 		function ubicarEnColaDeEmpaque(unPedido){
 
 			colaBE.push(unPedido);
@@ -163,7 +152,7 @@
 
 		function llegaPedidoCompleto(unPedido){
 						
-			ubicarEnColaDeFabricacion(unPedido);
+			ubicarEnColaDe(maquinaFabricacion,unPedido);
 			if(NF1 + NF2 == 1){
 				actualizarEstadoMaquina();
 				var demora = obtenerDemoraPreparacion(maquinaFabricacion, obtenerTipoPomoAProducir());
