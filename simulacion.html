@@ -11,6 +11,7 @@
 
 		var maquinaFabricacion = new Object();
 		maquinaFabricacion.modulo = 0;
+		maquinaFabricacion.tipoPomo = 'B1';
 
 		eventosFuturos.push(llegadaPedido,terminaImpresion,terminaFabricacion,terminaEmpacado1,terminaEmpacado2,
 		reposicionPlastico,reposicionLaca,reposicionPintura,reposicionCajas);
@@ -118,20 +119,23 @@
 						
 			ubicarEnColaDeFabricacion(unPedido);
 			if(NF1 + NF2 == 1){ //&& unPedido.tipoPomo == maquinaFabricacion.configuracionPomo no es necesario porque si esta  vacio cambiamos de tipo la maquina
-				var elementoAFabricar = obtenerDemoraPreparadoMaquinaFabricacion();
+				var demora = obtenerDemoraDeFabricacion();
 
-				terminaFabricacion.tiempo = T + elementoAFabricar.demoraPreparacion + obtenerDemoraDeFabricacion(unPedido);
+				terminaFabricacion.tiempo = T + demora + obtenerDemoraDeFabricacion(unPedido);
 			}
 			else{} //calculo de resultados
 
 		}
 
 		function terminaFabricacion(){
+
 			T = terminaFabricacion.tiempo;
 
+			
+
 			if(NF1 > 0 || NF2 > 0){
-				var elementoAFabricar = obtenerDemoraPreparadoMaquinaFabricacion();
-				terminaFabricacion.tiempo = T + elementoAFabricar.demoraPreparacion + obtenerDemoraDeFabricacion(unPedido);
+				var demora = obtenerDemoraDeFabricacion();
+				terminaFabricacion.tiempo = T + demora + obtenerDemoraDeFabricacion();
 			}
 				
 			if(NP1 + NP2 = 1)
@@ -238,19 +242,19 @@
 			//El consumo de laca esta determinado de acuerdo al tamanio del pomo (es un valor fijo por cada lote)
 		}
 
-		function obtenerDemoraPreparadoMaquinaFabricacion(){
+		function obtenerDemoraDeFabricacion(){
 			//comparar con el estado de la maquina. Es lo mismo para fabricacion que para impresion.
-			var estadoMaquina = obtenerEstadoMaquina();
-			var elementoAFabricar;
+			var moduloCorrector = obtenerEstadoMaquina();
+			var demora;
 
-			if(estadoMaquina.tipoPomo == 'B1')
-				elementoAFabricar = NF1 > 0 ? obtenerDemoraMismaMaquina(colaB1F) : obtenerDemoraCambioMaquina(estadoMaquina,colaB2F);
+			if(maquinaFabricacion.tipoPomo == 'B1')
+				demora = NF1 > 0 ? obtenerDemoraMismaCola() : obtenerDemoraDistintaCola(moduloCorrector);
 
 			
 			else
-				elementoAFabricar = NF2 > 0 ? obtenerDemoraMismaMaquina(colaB2F) : obtenerDemoraCambioMaquina(estadoMaquina,colaB1F);
+				demora = NF2 > 0 ? obtenerDemoraMismaCola() : obtenerDemoraDistintaCola(moduloCorrector);
 
-			return elementoAFabricar;
+			return demora;
 
 			/*
 			if(estadoMaquina.tipoPomo == tipoPomoAProducir){
@@ -263,35 +267,29 @@
 			}*/
 		}
 
-		function obtenerDemoraMismaMaquina(cola){
-			var elementoAFabricar = new Object();
-			elementoAFabricar.elemento = cola.shift(); 
-			elementoAFabricar.demoraPreparacion = 2;
+		function obtenerDemoraMismaCola(cola){ 
 			maquinaFabricacion.modulo++;
-			return elementoAFabricar;
+			return 2;
 		}
 
-		function obtenerDemoraDistintaMaquina(estadoMaquina,cola){
-			var elementoAFabricar = new Object();
-			elementoAFabricar.elemento = cola.shift(); 
-			elementoAFabricar.demoraPreparacion = 4;
-			maquinaFabricacion.modulo = estadoMaquina.modulo;
-			return elementoAFabricar;
+		function obtenerDemoraDistintaCola(moduloCorrector){
+			maquinaFabricacion.modulo = moduloCorrector;
+			return 4;
 
 		}
 
 		function obtenerEstadoMaquina(){
 			var estadoMaquina = new Object();
 			if(maquinaFabricacion.modulo % (M + N) < M ){
-				estadoMaquina.tipoPomo = 'B1';
-				estadoMaquina.modulo = M;
+				maquinaFabricacion.tipoPomo = 'B1';
+				moduloCorrector = M + 1;
 			}
 			else{
-				estadoMaquina.tipoPomo = 'B2';
-				estadoMaquina.modulo = N;
+				maquinaFabricacion.tipoPomo = 'B2';
+				moduloCorrector = N + 1;
 			}
 
-			return estadoMaquina;
+			return moduloCorrector;
 
 		}
 
