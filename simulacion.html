@@ -7,7 +7,7 @@
 		var reposicionPlastico = reposicionLaca = reposicionPintura = reposicionCajas = new Object();		   
 		var eventosFuturos = colaB1F = colaB2F = colaB1I = colaB2I = colaB1E = colaB2E = new Array();
 
-		var maquinaFabricacion = new Object();
+		var maquinaFabricacion = maquinaImpresion = new Object();
 		maquinaFabricacion.modulo = 0;
 		maquinaFabricacion.configuracionPomo = 'B1';
 		maquinaFabricacion.cantTipoConsecutivo = M;
@@ -127,7 +127,7 @@
 						
 			ubicarEnColaDeFabricacion(unPedido);
 			if(NF1 + NF2 == 1){ 
-				var demora = obtenerDemoraPreparacionDeFabricacion();
+				var demora = obtenerDemoraPreparacion(maquinaFabricacion);
 
 				terminaFabricacion.tiempo = T + demora + obtenerDemoraDeFabricacion(unPedido);
 			}
@@ -139,15 +139,18 @@
 
 			T = terminaFabricacion.tiempo;
 
-			
+			var pedidoParaImpresion = obtenerPedidoTerminadoEnFabricacion();
+			ubicarEnColaDeImpresion(pedidoParaImpresion);
 
 			if(NF1 > 0 || NF2 > 0){
-				var demora = obtenerDemoraPreparacionDeFabricacion();
-				terminaFabricacion.tiempo = T + demora + obtenerDemoraDeFabricacion();
+				var unPedido = obtenerPedidoParaFabricacion();
+				var demora = obtenerDemoraPreparacion(maquinaFabricacion);
+				terminaFabricacion.tiempo = T + demora + obtenerDemoraDeFabricacion(unPedido);
 			}
 				
-			if(NP1 + NP2 = 1)
-				terminaImpresion.tiempo = T + obtenerDemoraDeImpresion();
+			if(NP1 + NP2 == 1)
+
+				terminaImpresion.tiempo = T + obtenerDemoraDeImpresion(pedidoParaImpresion);
 			
 			if(STPL <= SRPL && reposicionPlastico.tiempo == 99999)
 				reposicionPlastico.tiempo = T + obtenerDemoraDeRecepcionDePlastico();
@@ -155,12 +158,17 @@
 		}
 
 
+		function obtenerPedidoTerminadoEnFabricacion(){
+			return maquinaFabricacion.tipoPomo == 'B1' ? colaB1F.shift() : colaB2F.shift();
+
+		}
+
 		function llegaPedidoImpresion(unPedido){
 			
 			ubicarEnColaDeImpresion(unPedido);
 			if( NP1 + NP2 == 1){
 
-				var demora = obtenerDemoraPreparacionDeImpresion();
+				var demora = obtenerDemoraPreparacion(maquinaImpresion);
 
 				terminaImpresion.tiempo = T + obtenerDemoraDeImpresion(unPedido);
 			}
@@ -272,12 +280,24 @@
 
 		function obtenerDemoraMismaCola(maquina){ 
 			maquina.modulo++;
-			return 2;
 		}
 
 		function obtenerDemoraDistintaCola(moduloCorrector, maquina){
 			maquina.modulo = moduloCorrector;
 			return 4;
+		}
+
+		function obtenerPedidoParaFabricacion(){
+			var unPedido;
+
+			if(maquinaFabricacion.tipoPomo == 'B1')
+				unPedido = NF1 > 0 ? colaB1I[0] : colaB2I[0];
+
+			else
+				unPedido = NF2 > 0 ? colaB2I[0] : colaB2I[0];
+
+			return unPedido;
+			
 		}
 
 		function obtenerEstadoMaquina(maquina){
