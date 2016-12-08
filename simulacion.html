@@ -154,7 +154,7 @@
 						
 			ubicarEnColaDe(maquinaFabricacion,unPedido);
 			if(NF1 + NF2 == 1){
-				actualizarEstadoMaquina();
+				actualizarEstadoMaquina( 	);
 				var demora = obtenerDemoraPreparacion(maquinaFabricacion, obtenerTipoPomoAProducir());
 
 				terminaFabricacion.tiempo = T + demora + obtenerDemoraDeFabricacion(unPedido);
