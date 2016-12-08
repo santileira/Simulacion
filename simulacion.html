@@ -6,6 +6,15 @@
 		var llegadaPedido = terminaImpresion = terminaFabricacion = terminaEmpacado1 = terminaEmpacado2 = new Object();
 		var reposicionPlastico = reposicionLaca = reposicionPintura = reposicionCajas = new Object();		   
 		var eventosFuturos = new Array();
+		var colaB1F = new Array();
+		var colaB2F = new Array();
+		var colaB1I = new Array();
+		var colaB2I = new Array();
+		var colaB1E = new Array();
+		var colaB2E = new Array();
+
+		var maquinaFabricacion = new Object();
+		maquinaFabricacion.configuracionPomo = B1;
 
 		eventosFuturos.push(llegadaPedido,terminaImpresion,terminaFabricacion,terminaEmpacado1,terminaEmpacado2,
 		reposicionPlastico,reposicionLaca,reposicionPintura,reposicionCajas);
@@ -55,18 +64,20 @@
 			pedido = new Object();
 			pedido.tipoPomo = obtenerTipoPomo();
 			pedido.tamanioPedido = obtenerTamanioPedido();
+
+			return pedido;
 		}
 
 		function llegadaPedido(){
 
 			T = llegadaPedido.tiempo;
 			llegadaPedido.tiempo = T + getIntervaloPedido();
-			creacionDePedido();
-			var r = Math.random();	
-			if(r < 0.95)
-				llegaPedidoCompleto();
+			unPedido = creacionDePedido();
+
+			if(Math.random() < 0.91)
+				llegaPedidoCompleto(unPedido);
 			else
-				llegaSoloImpresion();
+				llegaSoloImpresion(unPedido);
 				
 		}
 
@@ -74,18 +85,52 @@
 			return 1; //FDP
 		}
 
-		function llegaPedidoCompleto(){
-			
-			tipoProductoPedido = obtenerTipoProducto();
+		function ubicarEnColaDeFabricacion(unPedido){
+
+			if(unPedido.tipoPomo == 'B1'){
+				NF1++;
+				colaB1F.push(unPedido);
+			}else{
+				NF2++;
+				colaB2F.push(unPedido);
+			}
+		}
+
+		function ubicarEnColaDeImpresion(unPedido){
+
+			if(unPedido.tipoPomo == 'B1'){
+				NP1++;
+				colaB1I.push(unPedido);
+			}
+			else{
+				NP2++;
+				colaB2I.push(unPedido);
+			}
+		}
+
+		function ubicarEnColaDeEmpaque(unPedido){
+
+			if(unPedido.tipoPomo == 'B1'){
+				NE1++;
+				colaB1E.push(unPedido);
+			}
+			else{
+				NE2++;
+				colaB2E.push(unPedido);
+			}
+		}
+
+		function llegaPedidoCompleto(unPedido){
+						
 			ubicarEnColaDeFabricacion();
-			if(NF1 + NF2 == 1 && tipoProductoPedido == maquina.estado()){
+			if(NF1 + NF2 == 1 && unPedido.tipoPomo == maquina.configuracionPomo()){
 				terminaFabricacion.tiempo = T + obtenerDemoraDeFabricacion();
 			}
 			else{} //calculo de resultados
 
 		}
 
-		function llegaSoloImpresion(){
+		function llegaSoloImpresion(unPedido){
 			
 			ubicarEnColaDeImpresion();
 			if( NP1 + NP2 == 1){
