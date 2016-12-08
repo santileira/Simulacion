@@ -154,7 +154,7 @@
 				actualizarEstadoMaquina();
 				var demora = obtenerDemoraPreparacion(maquinaFabricacion, obtenerTipoPomoAProducir());
 
-				terminaFabricacion.tiempo = T + demora + obtenerDemoraDeFabricacion(unPedido);
+				terminaFabricacionEv.tiempo = T + demora + obtenerDemoraDeFabricacion(unPedido);
 			}
 			else{} //calculo de resultados
 
@@ -162,31 +162,43 @@
 
 		function terminaFabricacion(){
 
-			T = terminaFabricacion.tiempo;
+			T = terminaFabricacionEv.tiempo;
 
-			var pedidoParaImpresion = obtenerPedidoTerminadoEnFabricacion();
+			var pedidoParaImpresion = sacarPedidoTerminadoDe(maquinaFabricacion);
 			ubicarEnColaDeImpresion(pedidoParaImpresion);
 
 			if(NF1 > 0 || NF2 > 0){
-				actualizarEstadoMaquina();
-				var tipoPomoAProducir = obtenerTipoPomoAProducir()
+				actualizarEstadoMaquina(maquinaFabricacion);
+				var tipoPomoAProducir = obtenerTipoPomoAProducir(maquinaFabricacion);
 				var pedidoAFabricar = obtenerPedidoDe(maquinaFabricacion, tipoPomoAProducir);
 				var demora = obtenerDemoraPreparacion(maquinaFabricacion, tipoPomoAProducir);
-				terminaFabricacion.tiempo = T + demora + obtenerDemoraDeFabricacion(pedidoAFabricar);
+				terminaFabricacionEv.tiempo = T + demora + obtenerDemoraDeFabricacion(pedidoAFabricar);
 			}
 				
-			if(NP1 + NP2 == 1)
-
-				terminaImpresion.tiempo = T + obtenerDemoraDeImpresion(pedidoParaImpresion);
+			if(NI1 + NI2 == 1){
+				actualizarEstadoMaquina(maquinaImpresion);
+				var tipoPomoAProducir = obtenerTipoPomoAProducir(maquinaImpresion);
+				var pedidoAImprimir = obtenerPedidoDe(maquinaImpresion, tipoPomoAProducir);
+				var demora = obtenerDemoraPreparacion(maquinaImpresion, tipoPomoAProducir);
+				terminaImpresionEv.tiempo = T + demora + obtenerDemoraDeImpresion(pedidoAImprimir);
+			}
 			
-			if(STPL <= SRPL && reposicionPlastico.tiempo == 99999)
-				reposicionPlastico.tiempo = T + obtenerDemoraDeRecepcionDePlastico();
+			if(STPL <= SRPL && reposicionPlasticoEv.tiempo == 99999)
+				reposicionPlasticoEv.tiempo = T + obtenerDemoraDeRecepcionDePlastico();
 			
 		}
 
 
 		function sacarPedidoTerminadoDe(maquina){
-			return maquina.configuracionPomo == 'B1' ? colaB1F.shift() : colaB2F.shift();
+
+			if(maquina.configuracionPomo == 'B1'){
+				maquina.numeroCola1--;
+				maquina.cola1.shift();
+			}else{
+				maquina.numeroCola2--;
+				maquina.cola2.shift();
+			}
+
 		}
 
 		function llegaPedidoImpresion(unPedido){
@@ -226,13 +238,15 @@
 
 		
 
-		function terminaEmpacado(terminaEmpacado){
-			T = terminaEmpacado.tiempo;
+		function terminaEmpacado(terminaEmpacadoEv){
+			T = terminaEmpacadoEv.tiempo;
+			NE--;
 			if(NE > 1)
-				terminaEmpacado.tiempo = T + obtenerDemoraDeEmbalado();
+				var pedidoAEmpacar = obtenerPedidoAEmpacar();
+				terminaEmpacadoEv.tiempo = T + obtenerDemoraDeEmbalado(pedidoAEmpacar);
 				
-			if(STC <= SRC && reposicionCajas.tiempo == 99999)
-				reposicionCajas.tiempo = T + 24*60;				
+			if(STC <= SRC && reposicionCajasEv.tiempo == 99999)
+				reposicionCajasEv.tiempo = T + 24*60;				
 			
 		}
 
