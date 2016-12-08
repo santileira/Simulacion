@@ -149,12 +149,35 @@
 		}
 		
 		function obtenerDemoraDeEmbalado(){
+			//Las tiempos de empaque responden a una fdp en minutos por cada caja a empacar.
 		};
+
 		function obtenerDemoraDeFabricacion(){
-		
+			//en base a la cantidad de los mismos y su tamanio
 		}
 		function obtenerDemoraDeImpresion(){
+			//el tiempo de pintado mas el secado mas la aplicacion de la laca, 
+			//esta dado por una fdp en horas por cada 1000 unidades de pomos, 
+			//que es el tamanioo maximo de cada lote de pomos a pintar al mismo tiempo. 
 		}
+
+		function consumoDePlastico(/*tipoPomo, cantidadPomos*/){
+			//Estos tamanios determinan la cantidad de gramos de plastico que consume cada pomo.
+		}
+
+		function consumoDePintura(/*cantidadPomos*/){
+			//El consumo de pintura esta dado por una fdp en gramos para cada lote de 1000
+		}
+
+		function consumoDeLaca(/*tipoPomo, cantidadPomos*/){
+			//El consumo de laca esta determinado de acuerdo al tamanio del pomo (es un valor fijo por cada lote)
+		}
+
+		function obtenerDemoraPreparadoMaquina(/*tipoPomo*/){
+			//comparar con el estado de la maquina. Es lo mismo para fabricacion que para impresion.
+		}
+
+
    </script>
    </head>
    <body>
