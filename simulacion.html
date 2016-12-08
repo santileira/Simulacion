@@ -2,7 +2,16 @@
    <head>
    <title>Esta es una pagina web</title>
    <script type="text/javascript">
-		var NF1 , NF2, NP1 , NP2, T, NE, STL, STP, M, N, TF ;
+		var NF1 , NF2, NI1 , NI2, NE, STP, STL, STPL, STC;//estado
+		var M, N, SRC, SRPL, TPP, TPC; //control
+		var T
+		
+		function inicializacion(){
+			debugger;
+			NF1, NF2, NI1, NI2, NE = 0;
+
+		}
+
 		var llegadaPedidoEv = new Object();
 		var terminaImpresionEv = new Object();
 		var terminaFabricacionEv = new Object();
@@ -11,7 +20,9 @@
 		var reposicionPlasticoEv = new Object(); 
 		var reposicionLacaEv = new Object();
 		var reposicionPinturaEv = new Object();
-		var reposicionCajasEv = new Object();		   
+		var reposicionCajasEv = new Object();
+		var maquinaFabricacion = new Object();
+		var maquinaImpresion = new Object();		   
 		var eventosFuturos = new Array();
 		var colaB1F = new Array();
 		var colaB2F = new Array();
@@ -20,24 +31,20 @@
 		var colaB1E = new Array();
 		var colaB2E = new Array();
 		
-		
-
-		var maquinaFabricacion = maquinaImpresion = new Object();
+	
 		maquinaFabricacion.modulo = 0;
 		maquinaFabricacion.configuracionPomo = 'B1';
 		maquinaFabricacion.cantTipoConsecutivo = M;
 		maquinaFabricacion.numeroCola1 = NF1;
 		maquinaFabricacion.numeroCola2 = NF2;
 
-		var maquinaImpresion = new Object();
+	
 		maquinaImpresion.modulo = 0;
 		maquinaImpresion.tipoPomo = 'B1';
 		maquinaImpresion.cantTipoConsecutivo = N;
 		maquinaImpresion.numeroCola1 = NI1;
 		maquinaImpresion.numeroCola2 = NI2;
 
-		eventosFuturos.push(llegadaPedidoEv,terminaImpresionEv ,terminaFabricacionEv ,terminaEmpacado1Ev ,terminaEmpacado2Ev ,
-		reposicionPlasticoEv ,reposicionLacaEv ,reposicionPinturaEv ,reposicionCajasEv);
 
 		llegadaPedidoEv.funcion = llegadaPedido;
 		terminaImpresionEv.funcion = terminaImpresion;
@@ -48,6 +55,10 @@
 		reposicionLacaEv.funcion = reposicionLaca;
 		reposicionPinturaEv.funcion = reposicionPintura;
 		reposicionCajasEv.funcion = reposicionCajas;
+
+		eventosFuturos.push(llegadaPedidoEv,terminaImpresionEv ,terminaFabricacionEv ,terminaEmpacado1Ev ,terminaEmpacado2Ev ,
+		reposicionPlasticoEv ,reposicionLacaEv ,reposicionPinturaEv ,reposicionCajasEv);
+
 
 		eventosFuturos.forEach(function(elemento, indice){elemento.tiempo = 0;});
 
@@ -64,12 +75,10 @@
 		function iniciarSimulacion() {
 			
 			//srand(time(NULL));
-			inicializar();
+			inicializacion();
 			simulacion();
 		}
 
-		function inicializar(){
-		}
 
 		function simulacion(){
 			do{
