@@ -108,7 +108,7 @@
 
 		function creacionDePedido(){
 			pedido = new Object();
-			pedido.configuracionPomo = obtenerTipoPomo();
+			pedido.tipoPomo = obtenerTipoPomo();
 			pedido.tamanioPedido = obtenerTamanioPedido();
 
 			return pedido;
@@ -171,6 +171,7 @@
 			T = terminaFabricacionEv.tiempo;
 
 			var pedidoParaImpresion = sacarPedidoTerminadoDe(maquinaFabricacion);
+			consumoDePlastico(pedidoParaImpresion.tipoPomo, pedidoParaImpresion.tamanioPedido);
 			ubicarEnColaDeImpresion(pedidoParaImpresion);
 
 			if(maquinaFabricacion.numeroCola1 > 0 || maquinaFabricacion.numeroCola2 > 0){
@@ -197,7 +198,6 @@
 				reposicionPlasticoEv.tiempo = T + obtenerDemoraDeRecepcionDePlastico();
 			
 		}
-
 
 		function sacarPedidoTerminadoDe(maquina){
 
@@ -229,6 +229,8 @@
 			T = terminaImpresionEv.tiempo;
 
 			var pedidoParaEmpacado = sacarPedidoTerminadoDe(maquinaImpresion);
+			consumoDePintura(pedidoParaEmpacado.tamanioPedido);
+			consumoDeLaca(pedidoParaEmpacado.tipoPomo, pedidoParaEmpacado.tamanioPedido);
 			NE++;
 
 			if(maquinaImpresion.numeroCola1 > 0 || maquinaImpresion.numeroCola2 > 0){
@@ -324,15 +326,17 @@
 			//tener en cuenta tambien de que tipo es la maquina de impresion y que tipo de pomo se va a imprimir
 		};
 
-		function consumoDePlastico(/*tipoPomo, cantidadPomos*/){
+		function consumoDePlastico(tipoPomo, cantidadPomos){
 			//Estos tamanios determinan la cantidad de gramos de plastico que consume cada pomo.
 		};
 
-		function consumoDePintura(/*cantidadPomos*/){
+		function consumoDePintura(cantidadPomos){
+			var gramosPorLote1000 = obtenerFDPPintura();
+			
 			//El consumo de pintura esta dado por una fdp en gramos para cada lote de 1000
 		}
 
-		function consumoDeLaca(/*tipoPomo, cantidadPomos*/){
+		function consumoDeLaca(tipoPomo, cantidadPomos){
 			//El consumo de laca esta determinado de acuerdo al tamanio del pomo (es un valor fijo por cada lote)
 		}
 
