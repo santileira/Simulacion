@@ -2,36 +2,36 @@
    <head>
    <title>Esta es una pagina web</title>
    <script type="text/javascript">
-           var NF1 , NF2, NP1 , NP2, T, NE, STL, STP ;
-           var llegadaPedido = terminaImpresion= terminaFabricacion= terminaEmpacado1= terminaEmpacado2 = new Object();
-		   var reposicionPlastico = reposicionLaca= reposicionPintura= reposicionCajas = new Object();		   
-		   var eventosFuturos = new Array();
-           
-		   eventosFuturos.push(llegadaPedido,terminaImpresion,terminaFabricacion,terminaEmpacado1,terminaEmpacado2,
-		   reposicionPlastico,reposicionLaca,reposicionPintura,reposicionCajas);
-		   
-		   llegadaPedido.funcion = funcion;
-		   terminaImpresion.funcion = funcion;
-		   terminaFabricacion.funcion = funcion;
-		   terminaEmpacado1.funcion = funcion;
-		   terminaEmpacado2.funcion = funcion
-		   reposicionPlastico.funcion = funcion;
-		   reposicionLaca.funcion = funcion;
-		   reposicionPintura.funcion = funcion;
-		   reposicionCajas.funcion = funcion;
-		   
-		   eventosFuturos.forEach(function(elemento, indice){elemento.numero = 0;});
-		  
-			llegadaPedido.numero = -1;
-		   function obtenerMinimo() {
-             
-				minimo = eventosFuturos.sort()[0];
-				return minimo.funcion();
-		   }
-		   
-		   function funcion (){
-				return 2*2;
-		   }
+		var NF1 , NF2, NP1 , NP2, T, NE, STL, STP ;
+		var llegadaPedido = terminaImpresion = terminaFabricacion = terminaEmpacado1 = terminaEmpacado2 = new Object();
+		var reposicionPlastico = reposicionLaca = reposicionPintura = reposicionCajas = new Object();		   
+		var eventosFuturos = new Array();
+
+		eventosFuturos.push(llegadaPedido,terminaImpresion,terminaFabricacion,terminaEmpacado1,terminaEmpacado2,
+		reposicionPlastico,reposicionLaca,reposicionPintura,reposicionCajas);
+
+		llegadaPedido.funcion = funcion;
+		terminaImpresion.funcion = funcion;
+		terminaFabricacion.funcion = funcion;
+		terminaEmpacado1.funcion = funcion;
+		terminaEmpacado2.funcion = funcion
+		reposicionPlastico.funcion = funcion;
+		reposicionLaca.funcion = funcion;
+		reposicionPintura.funcion = funcion;
+		reposicionCajas.funcion = funcion;
+
+		eventosFuturos.forEach(function(elemento, indice){elemento.numero = 0;});
+
+
+		function obtenerMinimo() {
+		 
+			minimo = eventosFuturos.sort()[0];
+			return minimo.funcion();
+		}
+
+		function funcion (){
+			return 2*2;
+		}
 
 		function iniciarSimulacion() {
 			
@@ -51,11 +51,17 @@
 			
 		}
 
+		function creacionDePedido(){
+			pedido = new Object();
+			pedido.tipoPomo = obtenerTipoPomo();
+			pedido.tamanioPedido = obtenerTamanioPedido();
+		}
 
 		function llegadaPedido(){
-		
+
 			T = llegadaPedido.tiempo;
 			llegadaPedido.tiempo = T + getIntervaloPedido();
+			creacionDePedido();
 			var r = Math.random();	
 			if(r < 0.95)
 				llegaPedidoCompleto();
@@ -95,7 +101,7 @@
 				terminaImpresion.tiempo = T  + obtenerDemoraDeImpresion();
 			}
 			else {}//no hay más pintado ver que se hace
-		
+
 			if(NE < 2)
 				if(terminaEmpacado1 == 99999)
 					terminaEmpacado1.tiempo = T + obtenerDemoraDeEmbalado();
@@ -108,7 +114,7 @@
 			if(STP <= 5 && reposicionPintura.tiempo == 99999)
 				reposicionPintura.tiempo = T + 24*60;
 		}
-		
+
 		function terminaFabricacion(){
 			T = terminaFabricacion.tiempo;
 			if(NF1 > 0 || NF2 > 0)
@@ -121,7 +127,7 @@
 				reposicionPlastico.tiempo = T + obtenerDemoraDeRecepcionDePlastico();
 			
 		}
-		
+
 		function terminaEmpacado(terminaEmpacado){
 			T = terminaEmpacado.tiempo;
 			if(NE > 1)
@@ -131,23 +137,23 @@
 				reposicionCajas.tiempo = T + 24*60;				
 			
 		}
-		
+
 		function reposicionDePlastico(){
 			STPL = STPL + TPP;
 		}
-		
+
 		function reposicionDeLaca(){
 			STL = STL + 20;
 		}
-		
+
 		function reposicionDePintura(){
 			STP = STP + 5;
 		}
-		
+
 		funcion reposicionDeCajas(){
 			STC = STC + TPC;
 		}
-		
+
 		function obtenerDemoraDeEmbalado(){
 			//Las tiempos de empaque responden a una fdp en minutos por cada caja a empacar.
 		};
