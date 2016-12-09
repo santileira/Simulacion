@@ -5,8 +5,10 @@
 		var NF1, NF2, NI1, NI2, NE, STP, STL, STPL, STC;//estado
 		var M, N, SRC, SRPL, TPPL, TPC; //control
 		var T,HV,TF;
-		var sumatoriaDemoraPreparacionMaquina, sumatoriaDePermanenciaEnElSistema;
-		var porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinas;
+		var sumatoriaDemoraPreparacionMaquina, sumatoriaDePermanenciaEnElSistema, sumatoriaDeTiempoOciosoFabricacion,
+			sumatoriaDeTiempoOciosoImpresion, sumatoriaDeTiempoOciosoEmpaque1, sumatoriaDeTiempoOciosoEmpaque2;
+		var instanteTiempoOciosoFabricacion, instanteTiempoOciosoImpresion, instanteTiempoOciosoEmpaque1, instanteTiempoOciosoEmpaque2;
+		var porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinas; //resultados
 		
 		function inicializacion(){
 			debugger;
@@ -25,6 +27,14 @@
 			sumatoriaDemoraPreparacionMaquina = 0;
 			sumatoriaDePermanenciaEnElSistema = 0;
 			porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinas = 0;
+			instanteTiempoOciosoFabricacion = 0;
+			instanteTiempoOciosoImpresion = 0;
+			instanteTiempoOciosoEmpaque1 = 0;
+			instanteTiempoOciosoEmpaque2 = 0;
+			sumatoriaDeTiempoOciosoFabricacion = 0;
+			sumatoriaDeTiempoOciosoImpresion = 0;
+			sumatoriaDeTiempoOciosoEmpaque1 = 0;
+			sumatoriaDeTiempoOciosoEmpaque2 = 0;
 		}
 
 		function B1(){
@@ -181,10 +191,9 @@
 				var demora = obtenerDemoraPreparacion(maquinaFabricacion, obtenerTipoPomoAProducir());
 
 				terminaFabricacionEv.tiempo = T + demora + obtenerDemoraDeFabricacion(unPedido);
-			}
-			else{
 
-			} //calculo de resultados
+				sumatoriaDeTiempoOciosoFabricacion += (T- instanteTiempoOciosoFabricacion); 
+			}
 
 		}
 
@@ -206,6 +215,7 @@
 			}
 			else
 			{
+				instanteTiempoOciosoFabricacion = T;
 				terminaFabricacionEv.tiempo = HV;
 			}
 				
@@ -243,8 +253,9 @@
 				var demora = obtenerDemoraPreparacion(maquinaImpresion , obtenerTipoPomoAProducir());
 
 				terminaImpresionEv.tiempo = T + demora + obtenerDemoraDeImpresion(unPedido.tamanioPedido);
+
+				sumatoriaDeTiempoOciosoImpresion += (T- instanteTiempoOciosoImpresion);
 			}
-			else {}//calculo de resultados
 			
 		}
 
@@ -266,10 +277,9 @@
 				terminaImpresionEv.tiempo = T  + demora + obtenerDemoraDeImpresion(unPedido.tamanioPedido);
 			}
 			else {
+				instanteTiempoOciosoImpresion = T;
 				terminaImpresionEv.tiempo = HV;
-
-			}//no hay más pintado ver que se hace
-
+			}
 			
 			if(NE <= 2){
 				if(terminaEmpacado1Ev.tiempo == HV){
@@ -301,9 +311,12 @@
 			T = terminaEmpacadoEv.tiempo;
 			consumirCajas();
 			NE--;
-			if(NE > 1)
+			if(NE > 1){
 				var pedidoAEmpacar = obtenerPedidoAEmpacar();
 				terminaEmpacadoEv.tiempo = T + obtenerDemoraDeEmbalado(pedidoAEmpacar);
+			}else{
+				terminaEmpacadoEv.tiempo = HV;
+			}
 				
 			if(STC <= SRC && reposicionCajasEv.tiempo == 99999)
 				reposicionCajasEv.tiempo = T + 24*60;				
