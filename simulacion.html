@@ -92,10 +92,6 @@
 			return eventosFuturos.sort(function(a,b){return a.tiempo - b.tiempo})[0];
 		}
 
-		function funcion (){
-			return 2*2;
-		}
-
 		function iniciarSimulacion() {
 			
 			//srand(time(NULL));
@@ -106,7 +102,6 @@
 
 		function simulacion(){
 			do{
-				debugger;
 				eventoFuturo = obtenerEventoFuturoProximo()
 				eventoFuturo.funcion(eventoFuturo);
 			}
@@ -117,8 +112,23 @@
 			pedido = new Object();
 			pedido.tipoPomo = obtenerTipoPomo();
 			pedido.tamanioPedido = obtenerTamanioPedido();
-
+			actualizarInformacionPedido(pedido);
 			return pedido;
+		}
+
+		function actualizarInformacionPedido(unPedido){
+			if(unPedido.tipoPomo == 'B1'){
+				unPedido.consumoPlasticoInd = 3.68 / 1000;
+				unPedido.cantidadPorCaja = 1300 ;
+				unPedido.consumoLacaPorLote = 150 / 1000;
+			}
+			else
+			{
+				unPedido.consumoPlasticoInd = 15.15 / 1000;
+				unPedido.cantidadPorCaja = 208;
+				unPedido.consumoLacaPorLote = 1000 / 1000;
+			}
+
 		}
 
 		function llegadaPedido(){
@@ -134,7 +144,7 @@
 				
 		}
 
-		function getIntervaloPedido(){//IP
+		function obtenerIntervaloPedido(){//IP
 			var R = Math.random();
 			return Math.round((447.1/0.3658) * (Math.pow((Math.log(1/R)),-0.3658) - 1) + 453.69);
 		}
@@ -352,7 +362,7 @@
 		}
 
 		function obtenerDemoraDeFabricacion(unPedido){
-			var cantidadDeKilogramosDelPedido = unPedido.tamanioPedido * obtenerConsumoPlasticoIndividualSegun(unPedido);
+			var cantidadDeKilogramosDelPedido = unPedido.tamanioPedido * unPedido.consumoPlasticoInd;
 			return cantidadDeKilogramosDelPedido / 10;
 
 		};
@@ -374,38 +384,18 @@
 			return Math.round(32.835 / Math.pow((Math.log(1/R)),(1/2.6808)));
 		}
 		function consumirPlastico(unPedido){
-			STPL =- unPedido.tamanioPedido * obtenerConsumoPlasticoIndividualSegun(unPedido);
+			STPL =- unPedido.tamanioPedido * unPedido.consumoPlasticoInd;
 
 		};
 
 		function consumirCajas(unPedido){
-			STC =- Math.ceil(unPedido.tamanioPedido / obtenerCantidadDePomosPorCaja(unPedido.tipoPomo));
+			STC =- Math.ceil(unPedido.tamanioPedido / unPedido.cantidadPorCaja);
 
 		};
-
-		function obtenerCantidadDePomosPorCaja(tipoPomo){
-			if(tipoPomo == 'B1')
-				return 1300;
-			else
-				return 208;
-		}
-
-
-		function obtenerConsumoPlasticoIndividualSegun(tipoPomo){
-			if(tipoPomo == 'B1')
-				return 3.68;
-			else
-				return 15.15;
-
-
-		}
 		
-		function obtenerConsumoLacaIndividualSegun(tipoPomo){
-			if(tipoPomo == 'B1')
-				return 150/1000;
-			else
-				return 1000/1000;
-
+		function obtenerConsumoLacaIndividualSegun(unPedido){
+			
+			return unPedido.consumoLacaPorLote / 1000;
 
 		}
 		function obtenerDemoraDeRecepcionDePlastico(){
@@ -413,7 +403,7 @@
 		}
 
 		function consumirPintura(cantidadPomos){//CONS_PINT
-			STP=- cantidadLotes(cantidadPomos) * obtenerCantPinturaPorLote();
+			STP =- cantidadLotes(cantidadPomos) * obtenerCantPinturaPorLote() / 1000;
 		}
 		
 		function cantidadLotes(cantidadPomos){
