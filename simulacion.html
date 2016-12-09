@@ -7,8 +7,13 @@
 		var M, N, SRC, SRPL, TPPL, TPC; //control
 		var T,HV,TF;
 		var sumatoriaDemoraPreparacionMaquina, sumatoriaDePermanenciaEnElSistema;
+<<<<<<< HEAD
 		var porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaFabricacion, porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaImpresion;
 
+=======
+		var porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinas;
+		var gananciaTotal,costoTotal,costoQuincena,maximoCostoQuincena;
+>>>>>>> costos
 		var llegadaPedidoEv;
 		var terminaImpresionEv;
 		var terminaFabricacionEv;
@@ -72,7 +77,7 @@
 			STC = TPC;
 			//
 			T = 0;
-			TF = 10000;
+			TF = 75000;
 			HV = 99999;
 
 			//Resultado
@@ -90,6 +95,11 @@
 			cantidadPedidosIE = 0;
 			sumatoriaTiempoProduccionFIE = 0;
 			sumatoriaTiempoProduccionIE = 0;
+			gananciaTotal = 0;
+			costoTotal = 0;
+			costoQuincena = 0;
+			ultimaQuincena = -1; // auxiliar para calcular costo quincena
+			maximoCostoQuincena = -1;
 		}
 
 		function inicializarMaquinas(){
@@ -150,6 +160,7 @@
 			do{
 				eventoFuturo = obtenerEventoFuturoProximo()
 				eventoFuturo.funcion(eventoFuturo);
+				evaluarCostoQuincena();
 			}
 			while(T <= TF);
 			calculoDeResultados();
@@ -294,28 +305,43 @@
 					instanteTiempoOciosoEmpaque2 = T;
 			}
 				
+<<<<<<< HEAD
 			if(STC <= SRC && reposicionCajasEv.tiempo == HV)
 				reposicionCajasEv.tiempo = T + 24*60;				
+=======
+			if(STC <= SRC && reposicionCajasEv.tiempo == 99999)
+				reposicionCajasEv.tiempo = T + 24*60;
+
+			sumarGanancia(pedidoTerminado);
+>>>>>>> costos
 		}
 		function reposicionPlastico(){
 			sumarPermanenciaEnElSistema(reposicionPlasticoEv.tiempo);
 			STPL = STPL + TPPL;
 			reposicionPlasticoEv.tiempo = HV;
+			
+			sumarCosto(30 * TPPL + 1200);
 		}
 		function reposicionLaca(){
 			sumarPermanenciaEnElSistema(reposicionLacaEv.tiempo);
 			STL = STL + 20;
 			reposicionLacaEv.tiempo = HV;
+			
+			sumarCosto(1500);
 		}
 		function reposicionPintura(){
 			sumarPermanenciaEnElSistema(reposicionPinturaEv.tiempo);
 			STP = STP + 5;
 			reposicionPinturaEv.tiempo = HV;
+			
+			sumarCosto(2000);
 		}
 		function reposicionCajas(){
 			sumarPermanenciaEnElSistema(reposicionCajasEv.tiempo);
 			STC = STC + TPC;
 			reposicionCajasEv.tiempo = HV;
+			
+			sumarCosto(14 * TPC);
 		}
 		function llegaPedidoCompleto(unPedido){
 			unPedido.tipoPedido = 'FIE';
@@ -466,6 +492,31 @@
 			else
 				sumatoriaTiempoProduccionIE += (T - unPedido.tiempoComienzo);
 		}
+		function sumarGanancia(pedido){
+			if(pedido.tipoPedido == 'FIE')
+				precioPomo = pedido.tipoPomo == 'B1' ? 3 : 4.5;
+			else
+				precioPomo = 1;
+				
+			if(pedido.tamanioPedido <= 1000)
+				precioPomo += 3;
+			
+			gananciaTotal += precioPomo * pedido.tamanioPedido;
+		}
+		function sumarCosto(costo){
+			costoTotal += costo;
+			costoQuincena += costo;
+		}
+		function evaluarCostoQuincena(){
+			var quincenaActual = Math.floor(T / (15*8*60));
+			if(quincenaActual > ultimaQuincena){
+				ultimaQuincena = quincenaActual;
+				if(costoQuincena > maximoCostoQuincena){
+					maximoCostoQuincena = costoQuincena;
+					costoQuincena = 0;
+				}
+			}
+		}
 		function calculoDeResultados(){
 			porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaFabricacion = 
 				(maquinaFabricacion.sumatoriaDemoraPreparacionMaquina * 100)/T;
@@ -476,7 +527,13 @@
 			porcentajeDeTiempoOciosoEmpaque1 = (sumatoriaDeTiempoOciosoEmpaque1 * 100)/T;
 			porcentajeDeTiempoOciosoEmpaque2 = (sumatoriaDeTiempoOciosoEmpaque2 * 100)/T;
 			promedioTiempoProduccionFIE = (sumatoriaTiempoProduccionFIE)/cantidadPedidosFIE;
+<<<<<<< HEAD
 			promedioTiempoProduccionIE = isNaN(sumatoriaTiempoProduccionIE/cantidadPedidosIE) ? 0 : sumatoriaTiempoProduccionIE/cantidadPedidosIE;
+=======
+			promedioTiempoProduccionIE = (sumatoriaTiempoProduccionIE)/cantidadPedidosIE;
+			beneficio = gananciaTotal - costoTotal;
+			promedioCostoQuincena = costoTotal / (Math.round(T/(8*60*15)));
+>>>>>>> costos
 		}
 		function impresionDeResultados(){
 			console.log("Porcentaje de tiempo utilizado en preparación de máquina fabricación " + porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaFabricacion);
@@ -487,6 +544,9 @@
 			console.log("Porcentaje de tiempo ocioso empaque 2 " + porcentajeDeTiempoOciosoEmpaque2);
 			console.log("Promedio de tiempo producción FIE " + promedioTiempoProduccionFIE);
 			console.log("Promedio de tiempo producción IE " + promedioTiempoProduccionIE);
+			console.log("Beneficio total " + beneficio);
+			console.log("Maximo costo por quincena " + maximoCostoQuincena);
+			console.log("Promedio de costo por quincena " + promedioCostoQuincena);
 		}
 		///////////////////////////////////////FDP////////////////////////////////////////////////
 		function obtenerIntervaloPedido(){//IP
