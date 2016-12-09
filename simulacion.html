@@ -7,13 +7,9 @@
 		var M, N, SRC, SRPL, TPPL, TPC; //control
 		var T,HV,TF;
 		var sumatoriaDemoraPreparacionMaquina, sumatoriaDePermanenciaEnElSistema;
-<<<<<<< HEAD
 		var porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaFabricacion, porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaImpresion;
-
-=======
 		var porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinas;
 		var gananciaTotal,costoTotal,costoQuincena,maximoCostoQuincena;
->>>>>>> costos
 		var llegadaPedidoEv;
 		var terminaImpresionEv;
 		var terminaFabricacionEv;
@@ -278,10 +274,10 @@
 			
 			
 			if(STL <= 20 && reposicionLacaEv.tiempo == HV)
-				reposicionLacaEv.tiempo = T + 24*60; 
+				reposicionLacaEv.tiempo = T + (8*60 - (T % (8*60))); 
 			
 			if(STP <= 5 && reposicionPinturaEv.tiempo == HV)
-				reposicionPinturaEv.tiempo = T + 24*60;
+				reposicionPinturaEv.tiempo = T + (8*60 - (T % (8*60))); 
 		}
 		function terminaEmpacado(terminaEmpacadoEv){
 			sumarPermanenciaEnElSistema(terminaEmpacadoEv.tiempo);
@@ -305,15 +301,10 @@
 					instanteTiempoOciosoEmpaque2 = T;
 			}
 				
-<<<<<<< HEAD
 			if(STC <= SRC && reposicionCajasEv.tiempo == HV)
-				reposicionCajasEv.tiempo = T + 24*60;				
-=======
-			if(STC <= SRC && reposicionCajasEv.tiempo == 99999)
-				reposicionCajasEv.tiempo = T + 24*60;
-
+				reposicionCajasEv.tiempo = T + (8*60 - (T % (8*60))); 	
+				
 			sumarGanancia(pedidoTerminado);
->>>>>>> costos
 		}
 		function reposicionPlastico(){
 			sumarPermanenciaEnElSistema(reposicionPlasticoEv.tiempo);
@@ -527,13 +518,9 @@
 			porcentajeDeTiempoOciosoEmpaque1 = (sumatoriaDeTiempoOciosoEmpaque1 * 100)/T;
 			porcentajeDeTiempoOciosoEmpaque2 = (sumatoriaDeTiempoOciosoEmpaque2 * 100)/T;
 			promedioTiempoProduccionFIE = (sumatoriaTiempoProduccionFIE)/cantidadPedidosFIE;
-<<<<<<< HEAD
 			promedioTiempoProduccionIE = isNaN(sumatoriaTiempoProduccionIE/cantidadPedidosIE) ? 0 : sumatoriaTiempoProduccionIE/cantidadPedidosIE;
-=======
-			promedioTiempoProduccionIE = (sumatoriaTiempoProduccionIE)/cantidadPedidosIE;
 			beneficio = gananciaTotal - costoTotal;
 			promedioCostoQuincena = costoTotal / (Math.round(T/(8*60*15)));
->>>>>>> costos
 		}
 		function impresionDeResultados(){
 			console.log("Porcentaje de tiempo utilizado en preparación de máquina fabricación " + porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaFabricacion);
