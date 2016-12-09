@@ -68,8 +68,8 @@
 			NI1 = 0; 
 			NI2 = 0;
 			NE = 0;
-			STP = 20;
-			STL = 5;
+			STP = 5;
+			STL = 20;
 			STPL = TPPL;
 			STC = TPC;
 			//
@@ -566,7 +566,7 @@
 		function obtenerTamanioPedido(){//CANT
 			var R = Math.random();
 			var valor = Math.round(4766.5 * Math.sqrt(Math.log(1/Math.pow((1-R),2))));
-			return limitarEntre(valor,500,30000);
+			return limitarEntre(valor,500,24000);
 		}
 		function obtenerDemoraDeImpresion(tamanioPedido){//TI
 			var demora = 0;
