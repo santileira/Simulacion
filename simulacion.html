@@ -10,6 +10,7 @@
 		var porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaFabricacion, porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaImpresion;
 		var porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinas;
 		var gananciaTotal,costoTotal,costoQuincena,maximoCostoQuincena;
+		var cantidadPedidosPintura, cantidadPedidosLaca, cantidadPedidosPlastico, cantidadPedidosCaja ;
 		var llegadaPedidoEv;
 		var terminaImpresionEv;
 		var terminaFabricacionEv;
@@ -96,6 +97,10 @@
 			costoQuincena = 0;
 			ultimaQuincena = -1; // auxiliar para calcular costo quincena
 			maximoCostoQuincena = -1;
+			cantidadPedidosPintura = 0;
+			cantidadPedidosLaca = 0;
+			cantidadPedidosPlastico = 0;
+			cantidadPedidosCaja = 0;
 		}
 
 		function inicializarMaquinas(){
@@ -305,6 +310,7 @@
 			sumarGanancia(pedidoTerminado);
 		}
 		function reposicionPlastico(){
+			cantidadPedidosPlastico++;
 			sumarPermanenciaEnElSistema(reposicionPlasticoEv.tiempo);
 			STPL = STPL + TPPL;
 			reposicionPlasticoEv.tiempo = HV;
@@ -312,6 +318,7 @@
 			sumarCosto(30 * TPPL + 1200);
 		}
 		function reposicionLaca(){
+			cantidadPedidosLaca++;
 			sumarPermanenciaEnElSistema(reposicionLacaEv.tiempo);
 			STL = STL + 20;
 			reposicionLacaEv.tiempo = HV;
@@ -319,6 +326,7 @@
 			sumarCosto(1500);
 		}
 		function reposicionPintura(){
+			cantidadPedidosPintura++;
 			sumarPermanenciaEnElSistema(reposicionPinturaEv.tiempo);
 			STP = STP + 5;
 			reposicionPinturaEv.tiempo = HV;
@@ -326,6 +334,7 @@
 			sumarCosto(2000);
 		}
 		function reposicionCajas(){
+			cantidadPedidosCaja++;
 			sumarPermanenciaEnElSistema(reposicionCajasEv.tiempo);
 			STC = STC + TPC;
 			reposicionCajasEv.tiempo = HV;
@@ -524,6 +533,10 @@
 			console.log("Beneficio total " + beneficio);
 			console.log("Maximo costo por quincena " + maximoCostoQuincena);
 			console.log("Promedio de costo por quincena " + promedioCostoQuincena);
+			console.log("Cantidad pedidos pintura " + cantidadPedidosPintura);
+			console.log("Cantidad pedidos laca " + cantidadPedidosLaca);
+			console.log("Cantidad pedidos plastico " + cantidadPedidosPlastico);
+			console.log("Cantidad pedidos caja " + cantidadPedidosCaja);
 		}
 		///////////////////////////////////////FDP////////////////////////////////////////////////
 		function obtenerIntervaloPedido(){//IP
