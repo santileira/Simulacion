@@ -127,7 +127,9 @@
 			terminaImpresionEv.funcion = terminaImpresion;
 			terminaFabricacionEv.funcion = terminaFabricacion;
 			terminaEmpacado1Ev.funcion = terminaEmpacado;
+			terminaEmpacado1Ev.instanteTiempoOcioso = 0;
 			terminaEmpacado2Ev.funcion = terminaEmpacado;
+			terminaEmpacado2Ev.instanteTiempoOcioso = 0;
 			reposicionPlasticoEv.funcion = reposicionPlastico;
 			reposicionLacaEv.funcion = reposicionLaca;
 			reposicionPinturaEv.funcion = reposicionPintura;
@@ -262,11 +264,11 @@
 			if(NE <= 2){
 				if(terminaEmpacado1Ev.tiempo == HV){
 					terminaEmpacado1Ev.tiempo = T + obtenerDemoraDeEmbalado(pedidoParaEmpacado);
-					sumatoriaDeTiempoOciosoEmpaque1 += (T - instanteTiempoOciosoEmpaque1);
+					sumatoriaDeTiempoOciosoEmpaque1 += (T - terminaEmpacado1Ev.instanteTiempoOcioso);
 				}
 				else{
 					terminaEmpacado2Ev.tiempo = T + obtenerDemoraDeEmbalado(pedidoParaEmpacado);
-					sumatoriaDeTiempoOciosoEmpaque2 += (T - instanteTiempoOciosoEmpaque2);
+					sumatoriaDeTiempoOciosoEmpaque2 += (T - terminaEmpacado2Ev.instanteTiempoOcioso);
 				}
 			
 
@@ -294,11 +296,7 @@
 				terminaEmpacadoEv.tiempo = T + obtenerDemoraDeEmbalado(pedidoAEmpacar);
 			}else{
 				terminaEmpacadoEv.tiempo = HV;
-
-				if(terminaEmpacado1Ev.tiempo == HV)
-					instanteTiempoOciosoEmpaque1 = T;
-				else
-					instanteTiempoOciosoEmpaque2 = T;
+				terminaEmpacadoEv.instanteTiempoOcioso = T;
 			}
 				
 			if(STC <= SRC && reposicionCajasEv.tiempo == HV)
@@ -462,14 +460,6 @@
 
 			maquina.sumatoriaDemoraPreparacionMaquina =+ demora;
 			return demora;
-		}
-		function obtenerDemoraMismaCola(maquina){ 
-			maquina.modulo++;
-			return maquina.demoraMismoPedido;
-		}
-		function obtenerDemoraDistintaCola(moduloCorrector, maquina){
-			maquina.modulo = moduloCorrector;
-			return maquina.demoraDistintoPedido;
 		}
 		////////////////////////////////////////RESULTADOS////////////////////////////////////////////
 		function sumarPermanenciaEnElSistema(tiempoEvento){
