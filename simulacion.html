@@ -1,6 +1,7 @@
  <html>
    <head>
-   <title>Esta es una pagina web</title>
+   <title>Simulacion</title>
+   <link href="bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
    <script type="text/javascript">
 		var NF1, NF2, NI1, NI2, NE, STP, STL, STPL, STC;//estado
 		var M, N, SRC, SRPL, TPPL, TPC; //control
@@ -33,7 +34,17 @@
 		var numeroColas = new Array(maquinaFabricacion.numeroCola1,maquinaFabricacion.numeroCola2
 									,maquinaImpresion.numeroCola1,maquinaImpresion.numeroCola2,NE);		
 	
+		function obtenerInformacionDeInput(){
+			M = parseInt(document.getElementById('M').value);
+			N = parseInt(document.getElementById('N').value);
+			SRC = parseInt(document.getElementById('SRC').value);
+			SRPL = parseInt(document.getElementById('SRPL').value);
+			TPC = parseInt(document.getElementById('TPC').value);
+			TPPL = parseInt(document.getElementById('TPPL').value);
+		}
+
 		function inicializacion(){
+			//Estado
 			NF1 = 0;
 			NF2 = 0;
 			NI1 = 0; 
@@ -43,9 +54,12 @@
 			STL = 5;
 			STPL = TPPL;
 			STC = TPC;
+			//
 			T = 0;
 			TF = 100000000;
 			HV = 99999;
+
+			//Resultado
 			sumatoriaDemoraPreparacionMaquina = 0;
 			sumatoriaDePermanenciaEnElSistema = 0;
 			porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinas = 0;
@@ -107,13 +121,16 @@
 		function iniciarSimulacion() {
 			
 			//srand(time(NULL));
+			obtenerInformacionDeInput();
 			inicializacion();
 			inicializarMaquinas();
 			inicializarEventos();
 			simulacion();
 		}
 
-		
+
+
+
 		function obtenerEventoFuturoProximo() {
 		 
 			return eventosFuturos.sort(function(a,b){return a.tiempo - b.tiempo})[0];
@@ -197,7 +214,7 @@
 			
 				actualizarEstadoMaquina(maquinaFabricacion);
 			
-				var demora = obtenerDemoraPreparacion(maquinaFabricacion, obtenerTipoPomoAProducir());
+				var demora = obtenerDemoraPreparacion(maquinaFabricacion, obtenerTipoPomoAProducir(maquinaFabricacion));
 
 				terminaFabricacionEv.tiempo = T + demora + obtenerDemoraDeFabricacion(unPedido);
 
@@ -213,7 +230,7 @@
 
 			var pedidoParaImpresion = sacarPedidoTerminadoDe(maquinaFabricacion);
 			consumirPlastico(pedidoParaImpresion);
-			ubicarEnColaDeImpresion(pedidoParaImpresion);
+			ubicarEnColaDe(maquinaImpresion , pedidoParaImpresion);
 
 			if(maquinaFabricacion.numeroCola1 > 0 || maquinaFabricacion.numeroCola2 > 0){
 				actualizarEstadoMaquina(maquinaFabricacion);
@@ -517,7 +534,11 @@
 		function obtenerDemoraPreparacion(maquina, tipoPomoAProducir){
 			
 			if(maquina.configuracionPomo != tipoPomoAProducir){
-				maquina.modulo = Math.ceil(maquina.modulo/maquina.cantTipoConsecutivo)*maquina.cantTipoConsecutivo + 1;
+				if(maquina.modulo % maquina.cantTipoConsecutivo != 0)
+					maquina.modulo = Math.ceil(maquina.modulo/maquina.cantTipoConsecutivo)*maquina.cantTipoConsecutivo + 1;
+				else 
+					maquina.modulo = maquina.cantTipoConsecutivo + 1;
+
 				maquina.configuracionPomo = tipoPomoAProducir;
 				var demora = maquina.demoraDistintoPedido;
 			}else{
@@ -532,9 +553,9 @@
 		function obtenerTipoPomoAProducir(maquina){
 
 			if(maquina.configuracionPomo == 'B1')
-				maquina.numeroCola1 > 0 ? 'B1' : 'B2';				
+				return maquina.numeroCola1 > 0 ? 'B1' : 'B2';				
 			else
-				maquina.numeroCola2 > 0 ? 'B2' : 'B1';					
+				return maquina.numeroCola2 > 0 ? 'B2' : 'B1';					
 
 		}
 
@@ -577,8 +598,33 @@
    </script>
    </head>
    <body>
-   <script>
-           document.write(iniciarSimulacion());
-   </script>
+	   <div class="input-group">
+	  		<input id="M" type="text" class="form-control" placeholder="Tipo a producir consecutivos">
+	   </div>
+	 
+		<div class="input-group">
+	  		<input id="N" type="text" class="form-control" placeholder="Tipo a imprimir consecutivos">
+		</div>
+	 
+		<div class="input-group">
+	  		<input id="SRC" type="text" class="form-control" placeholder="Stock de reposición de cajas">
+		</div>
+		
+		<div class="input-group">
+	  		<input id="SRPL" type="text" class="form-control" placeholder="Stock de reposición de plástico">
+		</div>
+		
+		<div class="input-group">
+	  		<input id="TPPL" type="text" class="form-control" placeholder="Tamaño pedido plástico">
+		</div>
+		
+		<div class="input-group">
+	  		<input id="TPC" type="text" class="form-control" placeholder="Tamaño pedido cajas">
+		</div>
+	   
+		<div class="btn-group" role="group" aria-label="...">
+	  		<button id="iniciarSimulacion" type="button" class="btn btn-primary" onclick="iniciarSimulacion();">Correr Simulación</button>
+		</div>
+
    </body>
    </html>
