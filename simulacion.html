@@ -147,7 +147,8 @@
 
 		function obtenerIntervaloPedido(){//IP
 			var R = Math.random();
-			return Math.round((447.1/0.3658) * (Math.pow((Math.log(1/R)),-0.3658) - 1) + 453.69);
+			var valor = Math.round((447.1/0.3658) * (Math.pow((Math.log(1/R)),-0.3658) - 1) + 453.69);
+			return limitarEntre(valor,30,5000);
 		}
 
 		function ubicarEnColaDe(maquina,unPedido){
@@ -354,7 +355,8 @@
 
 		function obtenerTamanioPedido(){//CANT
 			var R = Math.random();
-			return Math.round(4766.5 * Math.sqrt(Math.log(1/Math.pow((1-R),2))));
+			var valor = Math.round(4766.5 * Math.sqrt(Math.log(1/Math.pow((1-R),2))));
+			return limitarEntre(valor,500,30000);
 		}
 
 		function obtenerDemoraDeEmbalado(unPedido){
@@ -374,12 +376,22 @@
 		
 		function demoraEmbaladoB1(){//TE1
 			var R = Math.random();
-			return Math.round(95.055 / (Math.pow(((1/R) - 1),(1/3.419))) + 26.651);
+			var valor = Math.round(95.055 / (Math.pow(((1/R) - 1),(1/3.419))) + 26.651);
+			return limitarEntre(valor,40,300);
 		}
 
 		function demoraEmbaladoB2(){//TE2
 			var R = Math.random();
-			return Math.round(231.73 * Math.pow((Math.pow((1-R),(-1/68.912)) - 1),(1/2.2537)));
+			var valor = Math.round(231.73 * Math.pow((Math.pow((1-R),(-1/68.912)) - 1),(1/2.2537)));
+			return limitarEntre(valor,5,80);
+		}
+		
+		function limitarEntre(valor,min,max){
+			if(valor > max)
+				return max;
+			if(valor < min)
+				return min;
+			return valor;
 		}
 
 		function obtenerDemoraDeFabricacion(unPedido){
@@ -402,7 +414,8 @@
 
 		function demoraDeImpresion(){
 			var R = Math.random();
-			return Math.round(32.835 / Math.pow((Math.log(1/R)),(1/2.6808)));
+			var valor = Math.round(32.835 / Math.pow((Math.log(1/R)),(1/2.6808)));
+			return limitarEntre(valor,10,400);
 		}
 		function consumirPlastico(unPedido){
 			STPL =- unPedido.tamanioPedido * unPedido.consumoPlasticoInd;
@@ -446,7 +459,8 @@
 		
 		function obtenerCantPinturaPorLote(){
 			var R = Math.random();
-			return Math.round((2.6507 * Math.tan(Math.PI * (R-0.5)) + 20.027)/5)*5;
+			var valor = Math.round((2.6507 * Math.tan(Math.PI * (R-0.5)) + 20.027)/5)*5;
+			return limitarEntre(valor,5,50);
 		}
 
 		function consumirLaca(unPedido){
