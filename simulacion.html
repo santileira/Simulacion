@@ -8,26 +8,47 @@
 		var T,HV,TF;
 		var sumatoriaDemoraPreparacionMaquina, sumatoriaDePermanenciaEnElSistema;
 		var porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinas;
-		var llegadaPedidoEv = new Object();
-		var terminaImpresionEv = new Object();
-		var terminaFabricacionEv = new Object();
-		var terminaEmpacado1Ev = new Object();
-		var terminaEmpacado2Ev = new Object();
-		var reposicionPlasticoEv = new Object(); 
-		var reposicionLacaEv = new Object();
-		var reposicionPinturaEv = new Object();
-		var reposicionCajasEv = new Object();
-		var maquinaFabricacion = new Object();
-		var maquinaImpresion = new Object();		   
-		var eventosFuturos = new Array();
-		var colaB1F = new Array();
-		var colaB2F = new Array();
-		var colaB1I = new Array();
-		var colaB2I = new Array();
-		var colaE = new Array();
-		var numeroColas = new Array(maquinaFabricacion.numeroCola1,maquinaFabricacion.numeroCola2
-									,maquinaImpresion.numeroCola1,maquinaImpresion.numeroCola2,NE);		
+		var llegadaPedidoEv;
+		var terminaImpresionEv;
+		var terminaFabricacionEv;
+		var terminaEmpacado1Ev;
+		var terminaEmpacado2Ev;
+		var reposicionPlasticoEv; 
+		var reposicionLacaEv;
+		var reposicionPinturaEv;
+		var reposicionCajasEv;
+		var maquinaFabricacion;
+		var maquinaImpresion;		   
+		var eventosFuturos;
+		var colaB1F;
+		var colaB2F;
+		var colaB1I;
+		var colaB2I;
+		var colaE;
+		var numeroColas;		
 	
+		function creacion(){
+			llegadaPedidoEv = new Object();
+			terminaImpresionEv = new Object();
+			terminaFabricacionEv = new Object();
+			terminaEmpacado1Ev = new Object();
+			terminaEmpacado2Ev = new Object();
+			reposicionPlasticoEv = new Object(); 
+			reposicionLacaEv = new Object();
+			reposicionPinturaEv = new Object();
+			reposicionCajasEv = new Object();
+			maquinaFabricacion = new Object();
+			maquinaImpresion = new Object();		   
+			eventosFuturos = new Array();
+			colaB1F = new Array();
+			colaB2F = new Array();
+			colaB1I = new Array();
+			colaB2I = new Array();
+			colaE = new Array();
+			numeroColas = new Array(maquinaFabricacion.numeroCola1,maquinaFabricacion.numeroCola2
+									,maquinaImpresion.numeroCola1,maquinaImpresion.numeroCola2,NE);	
+		}
+
 		function obtenerInformacionDeInput(){
 			M = parseInt(document.getElementById('M').value);
 			N = parseInt(document.getElementById('N').value);
@@ -104,6 +125,7 @@
 		function iniciarSimulacion() {
 			
 			//srand(time(NULL));
+			creacion();
 			obtenerInformacionDeInput();
 			inicializacion();
 			inicializarMaquinas();
