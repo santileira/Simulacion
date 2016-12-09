@@ -161,14 +161,33 @@
 
 		function simulacion(){
 			do{
-				eventoFuturo = obtenerEventoFuturoProximo()
-				eventoFuturo.funcion(eventoFuturo);
-				evaluarCostoQuincena();
+				proximoEvento();
 			}
 			while(T <= TF);
+			vaciamiento();
+			
 			calculoDeResultados();
 			impresionDeResultados();
 
+		}
+		
+		function proximoEvento(){
+			eventoFuturo = obtenerEventoFuturoProximo()
+			eventoFuturo.funcion(eventoFuturo);
+			evaluarCostoQuincena();
+		}
+		
+		function vaciamiento(){
+			while(continuaProduccion()){
+				llegadaPedidoEv.tiempo = HV;
+				proximoEvento();
+			}
+		}
+		
+		function continuaProduccion(){
+			return  maquinaFabricacion.numeroCola1 +  maquinaFabricacion.numeroCola2 +
+					maquinaImpresion.numeroCola1 + maquinaImpresion.numeroCola2 + NE
+					> 0;	
 		}
 
 		function obtenerEventoFuturoProximo() {
