@@ -115,7 +115,7 @@
 
 		function creacionDePedido(){
 			pedido = new Object();
-			pedido.configuracionPomo = obtenerTipoPomo();
+			pedido.tipoPomo = obtenerTipoPomo();
 			pedido.tamanioPedido = obtenerTamanioPedido();
 
 			return pedido;
@@ -135,7 +135,8 @@
 		}
 
 		function getIntervaloPedido(){
-			return 1; //FDP
+			var R = Math.random();
+			return Math.round((447.1/0.3658) * (Math.pow((Math.log(1/R)),-0.3658) - 1) + 453.69);
 		}
 
 		function ubicarEnColaDe(maquina,unPedido){
@@ -178,6 +179,7 @@
 			T = terminaFabricacionEv.tiempo;
 
 			var pedidoParaImpresion = sacarPedidoTerminadoDe(maquinaFabricacion);
+			consumoDePlastico(pedidoParaImpresion.tipoPomo, pedidoParaImpresion.tamanioPedido);
 			ubicarEnColaDeImpresion(pedidoParaImpresion);
 
 			if(maquinaFabricacion.numeroCola1 > 0 || maquinaFabricacion.numeroCola2 > 0){
@@ -204,7 +206,6 @@
 				reposicionPlasticoEv.tiempo = T + obtenerDemoraDeRecepcionDePlastico();
 			
 		}
-
 
 		function sacarPedidoTerminadoDe(maquina){
 
@@ -236,6 +237,8 @@
 			T = terminaImpresionEv.tiempo;
 
 			var pedidoParaEmpacado = sacarPedidoTerminadoDe(maquinaImpresion);
+			consumoDePintura(pedidoParaEmpacado.tamanioPedido);
+			consumoDeLaca(pedidoParaEmpacado.tipoPomo, pedidoParaEmpacado.tamanioPedido);
 			NE++;
 
 			if(maquinaImpresion.numeroCola1 > 0 || maquinaImpresion.numeroCola2 > 0){
@@ -314,29 +317,46 @@
 		}
 
 		function obtenerTamanioPedido(){
-
-
+			var R = Math.random();
+			return Math.round(4766.5 * Math.sqrt(Math.log(1/Math.pow((1-R),2))));
 		}
 		function obtenerDemoraDeEmbalado(){
-			//Las tiempos de empaque responden a una fdp en minutos por cada caja a empacar.
+			return demoraEmbaladoB1(); // TODO debería usar B1 o B2 dependiendo del tipo de pomo
 		};
+		
+		function demoraEmbaladoB1(){
+			var R = Math.random();
+			return Math.round(95.055 / (Math.pow(((1/R) - 1),(1/3.419))) + 26.651);
+		}
 
 		function obtenerDemoraDeFabricacion(){
 			//en base a la cantidad de los mismos y su tamanio, tambien hay que tener en cuenta en que formato estaba la maquina configurada.
 		};
 		function obtenerDemoraDeImpresion(unPedido){
-			//el tiempo de pintado mas el secado mas la aplicacion de la laca, 
-			//esta dado por una fdp en horas por cada 1000 unidades de pomos, 
-			//que es el tamanioo maximo de cada lote de pomos a pintar al mismo tiempo. 
-			//tener en cuenta tambien de que tipo es la maquina de impresion y que tipo de pomo se va a imprimir
+			var R = Math.random();
+			return Math.round(32.835 / Math.pow((Math.log(1/R)),(1/2.6808)));
 		};
 
-		function consumoDePlastico(/*tipoPomo, cantidadPomos*/){
+		function consumoDePlastico(tipoPomo, cantidadPomos){
 			//Estos tamanios determinan la cantidad de gramos de plastico que consume cada pomo.
 		};
+		
+		function obtenerDemoraDeRecepcionDePlastico(){
+			return 8*60*2; // TODO está harcadoeado en 2 días, mañana lo corrijo
+		}
 
-		function consumoDePintura(/*cantidadPomos*/){
-			//El consumo de pintura esta dado por una fdp en gramos para cada lote de 1000
+		function consumoDePintura(cantidadPomos){
+			var gramosPorLote1000 = obtenerFDPPintura();
+			return cantidadLotes(cantidadPomos) * gramosPorLote1000;
+		}
+		
+		function cantidadLotes(cantidadPomos){
+			return Math.ceil(cantidadPomos/1000);
+		}
+		
+		function obtenerFDPPintura(){
+			var R = Math.random();
+			return Math.round((2.6507 * Math.tan(Math.PI * (R-0.5)) + 20.027)/5)*5;
 		}
 
 		function consumoDeLaca(tipoPomo, cantidadPomos){
