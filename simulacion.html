@@ -78,7 +78,18 @@
 			sumatoriaDemoraPreparacionMaquina = 0;
 			sumatoriaDePermanenciaEnElSistema = 0;
 			porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinas = 0;
-			//
+			instanteTiempoOciosoFabricacion = 0;
+			instanteTiempoOciosoImpresion = 0;
+			instanteTiempoOciosoEmpaque1 = 0;
+			instanteTiempoOciosoEmpaque2 = 0;
+			sumatoriaDeTiempoOciosoFabricacion = 0;
+			sumatoriaDeTiempoOciosoImpresion = 0;
+			sumatoriaDeTiempoOciosoEmpaque1 = 0;
+			sumatoriaDeTiempoOciosoEmpaque2 = 0;
+			cantidadPedidosFIE = 0;
+			cantidadPedidosIE = 0;
+			sumatoriaTiempoProduccionFIE = 0;
+			sumatoriaTiempoProduccionIE = 0;
 		}
 
 		function inicializarMaquinas(){
@@ -153,6 +164,7 @@
 			pedido = new Object();
 			pedido.tipoPomo = obtenerTipoPomo();
 			pedido.tamanioPedido = obtenerTamanioPedido();
+			pedido.tiempoComienzo = T;
 			actualizarInformacionPedido(pedido);
 			return pedido;
 		}
@@ -209,7 +221,9 @@
 		}
 
 		function llegaPedidoCompleto(unPedido){
-						
+			unPedido.tipoPedido = 'FIE';
+			cantidadPedidosFIE++;
+
 			ubicarEnColaDe(maquinaFabricacion,unPedido);
 
 			if(maquinaFabricacion.numeroCola1 + maquinaFabricacion.numeroCola2 == 1){
@@ -219,10 +233,9 @@
 				var demora = obtenerDemoraPreparacion(maquinaFabricacion, obtenerTipoPomoAProducir(maquinaFabricacion));
 
 				terminaFabricacionEv.tiempo = T + demora + obtenerDemoraDeFabricacion(unPedido);
-			}
-			else{
 
-			} //calculo de resultados
+				sumatoriaDeTiempoOciosoFabricacion += (T- instanteTiempoOciosoFabricacion); 
+			}
 
 		}
 
@@ -244,6 +257,7 @@
 			}
 			else
 			{
+				instanteTiempoOciosoFabricacion = T;
 				terminaFabricacionEv.tiempo = HV;
 			}
 				
@@ -273,16 +287,21 @@
 		}
 
 		function llegaPedidoImpresion(unPedido){
-			
+			unPedido.tipoPedido = 'IE';
+			cantidadPedidosIE++;
+
 			ubicarEnColaDeImpresion(unPedido);
+
 			if(maquinaImpresion.numeroCola1 + maquinaImpresion.numeroCola2 == 1){
+
 				actualizarEstadoMaquina(maquinaImpresion);
 
 				var demora = obtenerDemoraPreparacion(maquinaImpresion , obtenerTipoPomoAProducir());
 
 				terminaImpresionEv.tiempo = T + demora + obtenerDemoraDeImpresion(unPedido.tamanioPedido);
+
+				sumatoriaDeTiempoOciosoImpresion += (T- instanteTiempoOciosoImpresion);
 			}
-			else {}//calculo de resultados
 			
 		}
 
@@ -304,18 +323,19 @@
 				terminaImpresionEv.tiempo = T  + demora + obtenerDemoraDeImpresion(unPedido.tamanioPedido);
 			}
 			else {
+				instanteTiempoOciosoImpresion = T;
 				terminaImpresionEv.tiempo = HV;
-
-			}//no hay más pintado ver que se hace
-
+			}
 			
 			if(NE <= 2){
 				if(terminaEmpacado1Ev.tiempo == HV){
-
 					terminaEmpacado1Ev.tiempo = T + obtenerDemoraDeEmbalado(pedidoParaEmpacado);
+					sumatoriaDeTiempoOciosoEmpaque1 += (T - instanteTiempoOciosoEmpaque1);
 				}
-				else
+				else{
 					terminaEmpacado2Ev.tiempo = T + obtenerDemoraDeEmbalado(pedidoParaEmpacado);
+					sumatoriaDeTiempoOciosoEmpaque2 += (T - instanteTiempoOciosoEmpaque2);
+				}
 			
 
 			}
@@ -345,15 +365,35 @@
 		function terminaEmpacado(terminaEmpacadoEv){
 			sumarPermanenciaEnElSistema(terminaEmpacadoEv.tiempo);
 			T = terminaEmpacadoEv.tiempo;
-			var pedidoTerminado = sacarPedidoTerminadoDeEmpacado();
-			consumirCajas(pedidoTerminado);
-			if(NE > 1)
+
+			var pedidoTerminado = sacarPedidoTerminadoDeEmpacado();			
+			sumarTiempoProduccion(pedidoTerminado);
+
+			if(pedidoTerminado.tipoPedido == 'FIE')			
+				consumirCajas(pedidoTerminado);
+
+			if(NE > 1){
 				var pedidoAEmpacar = obtenerPedidoAEmpacar();
 				terminaEmpacadoEv.tiempo = T + obtenerDemoraDeEmbalado(pedidoAEmpacar);
+			}else{
+				terminaEmpacadoEv.tiempo = HV;
+
+				if(terminaEmpacado1Ev == HV)
+					instanteTiempoOciosoEmpaque1 = T;
+				else
+					instanteTiempoOciosoEmpaque2 = T;
+			}
 				
 			if(STC <= SRC && reposicionCajasEv.tiempo == 99999)
 				reposicionCajasEv.tiempo = T + 24*60;				
 			
+		}
+
+		function sumarTiempoProduccion(unPedido){
+			if(unPedido.tipoPedido == 'FIE')
+				sumatoriaTiempoProduccionFIE += (T - unPedido.tiempoComienzo);
+			else
+				sumatoriaTiempoProduccionIE += (T - unPedido.tiempoComienzo);
 		}
 
 		function sacarPedidoTerminadoDeEmpacado(){
@@ -560,7 +600,15 @@
 
 		function calculoDeResultados(){
 			porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinas = 
-				(sumatoriaDemoraPreparacionMaquina * 100)/sumatoriaDePermanenciaEnElSistema;
+				(sumatoriaDemoraPreparacionMaquina * 100)/T;
+
+			porcentajeDeTiempoOciosoFabricacion = (sumatoriaDeTiempoOciosoFabricacion * 100)/T;
+			porcentajeDeTiempoOciosoImpresion = (sumatoriaDeTiempoOciosoImpresion * 100)/T;
+			porcentajeDeTiempoOciosoEmpaque1 = (sumatoriaDeTiempoOciosoEmpaque1 * 100)/T;
+			porcentajeDeTiempoOciosoEmpaque2 = (sumatoriaDeTiempoOciosoEmpaque2 * 100)/T;
+			promedioTiempoProduccionFIE = (sumatoriaTiempoProduccionFIE)/cantidadPedidosFIE;
+			promedioTiempoProduccionIE = (sumatoriaTiempoProduccionIE)/cantidadPedidosIE;
+
 		}
 
    </script>
