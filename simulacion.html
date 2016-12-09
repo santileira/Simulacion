@@ -7,7 +7,8 @@
 		var M, N, SRC, SRPL, TPPL, TPC; //control
 		var T,HV,TF;
 		var sumatoriaDemoraPreparacionMaquina, sumatoriaDePermanenciaEnElSistema;
-		var porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinas;
+		var porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaFabricacion, porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaImpresion;
+
 		var llegadaPedidoEv;
 		var terminaImpresionEv;
 		var terminaFabricacionEv;
@@ -75,7 +76,6 @@
 			HV = 99999;
 
 			//Resultado
-			sumatoriaDemoraPreparacionMaquina = 0;
 			sumatoriaDePermanenciaEnElSistema = 0;
 			porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinas = 0;
 			instanteTiempoOciosoFabricacion = 0;
@@ -102,7 +102,8 @@
 			maquinaFabricacion.cola2 = colaB2F;
 			maquinaFabricacion.demoraDistintoPedido = 4*60;
 			maquinaFabricacion.demoraMismoPedido = 2*60;
-		
+			maquinaFabricacion.sumatoriaDemoraPreparacionMaquina = 0;
+
 			maquinaImpresion.modulo = 0;
 			maquinaImpresion.configuracionPomo = 'B1';
 			maquinaImpresion.cantTipoConsecutivo = N;
@@ -112,6 +113,7 @@
 			maquinaImpresion.cola2 = colaB2I;
 			maquinaImpresion.demoraDistintoPedido = 8*60;
 			maquinaImpresion.demoraMismoPedido = 4*60;
+			maquinaImpresion.sumatoriaDemoraPreparacionMaquina = 0;
 		}
 
 		function inicializarEventos(){
@@ -221,6 +223,8 @@
 				var pedidoAImprimir = obtenerPedidoDe(maquinaImpresion, tipoPomoAProducir);
 				var demora = obtenerDemoraPreparacion(maquinaImpresion, tipoPomoAProducir);
 				terminaImpresionEv.tiempo = T + demora + obtenerDemoraDeImpresion(pedidoAImprimir.tamanioPedido);
+
+				sumatoriaDeTiempoOciosoImpresion += (T- instanteTiempoOciosoImpresion); 
 			}
 			
 			if(STPL <= SRPL && reposicionPlasticoEv.tiempo == HV)
@@ -284,13 +288,13 @@
 			}else{
 				terminaEmpacadoEv.tiempo = HV;
 
-				if(terminaEmpacado1Ev == HV)
+				if(terminaEmpacado1Ev.tiempo == HV)
 					instanteTiempoOciosoEmpaque1 = T;
 				else
 					instanteTiempoOciosoEmpaque2 = T;
 			}
 				
-			if(STC <= SRC && reposicionCajasEv.tiempo == 99999)
+			if(STC <= SRC && reposicionCajasEv.tiempo == HV)
 				reposicionCajasEv.tiempo = T + 24*60;				
 		}
 		function reposicionPlastico(){
@@ -439,7 +443,7 @@
 				var demora = maquina.demoraMismoPedido;
 			}
 
-			sumatoriaDemoraPreparacionMaquina = sumatoriaDemoraPreparacionMaquina + demora;
+			maquina.sumatoriaDemoraPreparacionMaquina =+ demora;
 			return demora;
 		}
 		function obtenerDemoraMismaCola(maquina){ 
@@ -463,17 +467,20 @@
 				sumatoriaTiempoProduccionIE += (T - unPedido.tiempoComienzo);
 		}
 		function calculoDeResultados(){
-			porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinas = 
-				(sumatoriaDemoraPreparacionMaquina * 100)/T;
+			porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaFabricacion = 
+				(maquinaFabricacion.sumatoriaDemoraPreparacionMaquina * 100)/T;
+			porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaImpresion = 
+				(maquinaImpresion.sumatoriaDemoraPreparacionMaquina * 100)/T;
 			porcentajeDeTiempoOciosoFabricacion = (sumatoriaDeTiempoOciosoFabricacion * 100)/T;
 			porcentajeDeTiempoOciosoImpresion = (sumatoriaDeTiempoOciosoImpresion * 100)/T;
 			porcentajeDeTiempoOciosoEmpaque1 = (sumatoriaDeTiempoOciosoEmpaque1 * 100)/T;
 			porcentajeDeTiempoOciosoEmpaque2 = (sumatoriaDeTiempoOciosoEmpaque2 * 100)/T;
 			promedioTiempoProduccionFIE = (sumatoriaTiempoProduccionFIE)/cantidadPedidosFIE;
-			promedioTiempoProduccionIE = (sumatoriaTiempoProduccionIE)/cantidadPedidosIE;
+			promedioTiempoProduccionIE = isNaN(sumatoriaTiempoProduccionIE/cantidadPedidosIE) ? 0 : sumatoriaTiempoProduccionIE/cantidadPedidosIE;
 		}
 		function impresionDeResultados(){
-			console.log("Porcentaje de tiempo utilizado en preparación de máquinas " + porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinas);
+			console.log("Porcentaje de tiempo utilizado en preparación de máquina fabricación " + porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaFabricacion);
+			console.log("Porcentaje de tiempo utilizado en preparación de máquina impresión " + porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaImpresion);
 			console.log("Porcentaje de tiempo ocioso fabricación " + porcentajeDeTiempoOciosoFabricacion);
 			console.log("Porcentaje de tiempo ocioso impresión " + porcentajeDeTiempoOciosoImpresion);
 			console.log("Porcentaje de tiempo ocioso empaque 1 " + porcentajeDeTiempoOciosoEmpaque1);
@@ -517,7 +524,7 @@
 				funcion = demoraEmbaladoB2;
 			
 			for(var i=0; i < Math.ceil(unPedido.tamanioPedido/unPedido.cantidadPorCaja); i++){
-				demora=+ funcion();
+				demora += funcion();
 			}
 
 			return demora;
