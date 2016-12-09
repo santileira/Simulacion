@@ -7,9 +7,27 @@
 		var T,HV,TF;
 		var sumatoriaDemoraPreparacionMaquina, sumatoriaDePermanenciaEnElSistema;
 		var porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinas;
-		
+		var llegadaPedidoEv = new Object();
+		var terminaImpresionEv = new Object();
+		var terminaFabricacionEv = new Object();
+		var terminaEmpacado1Ev = new Object();
+		var terminaEmpacado2Ev = new Object();
+		var reposicionPlasticoEv = new Object(); 
+		var reposicionLacaEv = new Object();
+		var reposicionPinturaEv = new Object();
+		var reposicionCajasEv = new Object();
+		var maquinaFabricacion = new Object();
+		var maquinaImpresion = new Object();		   
+		var eventosFuturos = new Array();
+		var colaB1F = new Array();
+		var colaB2F = new Array();
+		var colaB1I = new Array();
+		var colaB2I = new Array();
+		var colaE = new Array();
+		var numeroColas = new Array(maquinaFabricacion.numeroCola1,maquinaFabricacion.numeroCola2
+									,maquinaImpresion.numeroCola1,maquinaImpresion.numeroCola2,NE);		
+	
 		function inicializacion(){
-			debugger;
 			NF1 = 0;
 			NF2 = 0;
 			NI1 = 0; 
@@ -27,82 +45,61 @@
 			porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinas = 0;
 		}
 
-		function B1(){
-
-
+		function inicializarMaquinas(){
+			maquinaFabricacion.modulo = 0;
+			maquinaFabricacion.configuracionPomo = 'B1';
+			maquinaFabricacion.cantTipoConsecutivo = M;
+			maquinaFabricacion.numeroCola1 = NF1;
+			maquinaFabricacion.numeroCola2 = NF2;
+			maquinaFabricacion.cola1 = colaB1F;
+			maquinaFabricacion.cola2 = colaB2F;
+			maquinaFabricacion.demoraDistintoPedido = 4;
+			maquinaFabricacion.demoraMismoPedido = 2;
+		
+			maquinaImpresion.modulo = 0;
+			maquinaImpresion.configuracionPomo = 'B1';
+			maquinaImpresion.cantTipoConsecutivo = N;
+			maquinaImpresion.numeroCola1 = NI1;
+			maquinaImpresion.numeroCola2 = NI2;
+			maquinaImpresion.cola1 = colaB1I;
+			maquinaImpresion.cola2 = colaB2I;
+			maquinaImpresion.demoraDistintoPedido = 8;
+			maquinaImpresion.demoraMismoPedido = 4;
 		}
 
+		function inicializarEventos(){
+			llegadaPedidoEv.funcion = llegadaPedido;
+			terminaImpresionEv.funcion = terminaImpresion;
+			terminaFabricacionEv.funcion = terminaFabricacion;
+			terminaEmpacado1Ev.funcion = terminaEmpacado;
+			terminaEmpacado2Ev.funcion = terminaEmpacado;
+			reposicionPlasticoEv.funcion = reposicionPlastico;
+			reposicionLacaEv.funcion = reposicionLaca;
+			reposicionPinturaEv.funcion = reposicionPintura;
+			reposicionCajasEv.funcion = reposicionCajas;
 
-		var llegadaPedidoEv = new Object();
-		var terminaImpresionEv = new Object();
-		var terminaFabricacionEv = new Object();
-		var terminaEmpacado1Ev = new Object();
-		var terminaEmpacado2Ev = new Object();
-		var reposicionPlasticoEv = new Object(); 
-		var reposicionLacaEv = new Object();
-		var reposicionPinturaEv = new Object();
-		var reposicionCajasEv = new Object();
-		var maquinaFabricacion = new Object();
-		var maquinaImpresion = new Object();		   
-		var eventosFuturos = new Array();
-		var colaB1F = new Array();
-		var colaB2F = new Array();
-		var colaB1I = new Array();
-		var colaB2I = new Array();
-		var colaBE = new Array();		
-	
-		maquinaFabricacion.modulo = 0;
-		maquinaFabricacion.configuracionPomo = 'B1';
-		maquinaFabricacion.cantTipoConsecutivo = M;
-		maquinaFabricacion.numeroCola1 = NF1;
-		maquinaFabricacion.numeroCola2 = NF2;
-		maquinaFabricacion.cola1 = colaB1F;
-		maquinaFabricacion.cola2 = colaB2F;
-		maquinaFabricacion.demoraDistintoPedido = 4;
-		maquinaFabricacion.demoraMismoPedido = 2;
-	
-		maquinaImpresion.modulo = 0;
-		maquinaImpresion.configuracionPomo = 'B1';
-		maquinaImpresion.cantTipoConsecutivo = N;
-		maquinaImpresion.numeroCola1 = NI1;
-		maquinaImpresion.numeroCola2 = NI2;
-		maquinaImpresion.cola1 = colaB1I;
-		maquinaImpresion.cola2 = colaB2I;
-		maquinaImpresion.demoraDistintoPedido = 8;
-		maquinaImpresion.demoraMismoPedido = 4;
-
-		var numeroColas = new Array(maquinaFabricacion.numeroCola1,maquinaFabricacion.numeroCola2
-									,maquinaImpresion.numeroCola1,maquinaImpresion.numeroCola2,NE);
-
-		llegadaPedidoEv.funcion = llegadaPedido;
-		terminaImpresionEv.funcion = terminaImpresion;
-		terminaFabricacionEv.funcion = terminaFabricacion;
-		terminaEmpacado1Ev.funcion = terminaEmpacado;
-		terminaEmpacado2Ev.funcion = terminaEmpacado;
-		reposicionPlasticoEv.funcion = reposicionPlastico;
-		reposicionLacaEv.funcion = reposicionLaca;
-		reposicionPinturaEv.funcion = reposicionPintura;
-		reposicionCajasEv.funcion = reposicionCajas;
-
-		eventosFuturos.push(llegadaPedidoEv,terminaImpresionEv ,terminaFabricacionEv ,terminaEmpacado1Ev ,terminaEmpacado2Ev ,
-		reposicionPlasticoEv ,reposicionLacaEv ,reposicionPinturaEv ,reposicionCajasEv);
+			eventosFuturos.push(llegadaPedidoEv,terminaImpresionEv ,terminaFabricacionEv ,terminaEmpacado1Ev ,terminaEmpacado2Ev ,
+			reposicionPlasticoEv ,reposicionLacaEv ,reposicionPinturaEv ,reposicionCajasEv);
 
 
-		eventosFuturos.forEach(function(elemento, indice){elemento.tiempo = 0;});
-		terminaEmpacado1Ev.tiempo = -1;
-
-		function obtenerEventoFuturoProximo() {
-		 
-			return eventosFuturos.sort(function(a,b){return a.tiempo - b.tiempo})[0];
+			eventosFuturos.forEach(function(elemento, indice){elemento.tiempo = 0;});
 		}
+
 
 		function iniciarSimulacion() {
 			
 			//srand(time(NULL));
 			inicializacion();
+			inicializarMaquinas();
+			inicializarEventos();
 			simulacion();
 		}
 
+		
+		function obtenerEventoFuturoProximo() {
+		 
+			return eventosFuturos.sort(function(a,b){return a.tiempo - b.tiempo})[0];
+		}
 
 		function simulacion(){
 			do{
@@ -166,8 +163,8 @@
 
 	
 		function ubicarEnColaDeEmpaque(unPedido){
-
-			colaBE.push(unPedido);
+			NE++;
+			colaE.push(unPedido);
 		}
 
 		function llegaPedidoCompleto(unPedido){
@@ -253,9 +250,9 @@
 			T = terminaImpresionEv.tiempo;
 
 			var pedidoParaEmpacado = sacarPedidoTerminadoDe(maquinaImpresion);
+			ubicarEnColaDeEmpaque(pedidoParaEmpacado);
 			consumirPintura(pedidoParaEmpacado.tamanioPedido);
 			consumirLaca(pedidoParaEmpacado);
-			NE++;
 
 			if(maquinaImpresion.numeroCola1 > 0 || maquinaImpresion.numeroCola2 > 0){
 
@@ -281,8 +278,7 @@
 			
 
 			}
-			else
-				ubicarEnColaDeEmpaque(pedidoParaEmpacado);
+			
 			
 			if(STL <= 20 && reposicionLacaEv.tiempo == HV)
 				reposicionLacaEv.tiempo = T + 24*60; 
@@ -291,16 +287,25 @@
 				reposicionPinturaEv.tiempo = T + 24*60;
 		}
 
-		
+		function obtenerPedidoDe(maquina, tipoPomoAProducir){
+
+
+			if(tipoPomoAProducir == 'B1')
+				return maquina.numeroCola1[0];
+			else
+				return maquina.numeroCola2[0];
+			
+
+		}
 		function obtenerPedidoAEmpacar(){
-			return colaBE.shift();
+			return colaE[0];
 		}
 
 		function terminaEmpacado(terminaEmpacadoEv){
 			sumarPermanenciaEnElSistema(terminaEmpacadoEv.tiempo);
 			T = terminaEmpacadoEv.tiempo;
-			consumirCajas();
-			NE--;
+			var pedidoTerminado = sacarPedidoTerminadoDeEmpacado();
+			consumirCajas(pedidoTerminado);
 			if(NE > 1)
 				var pedidoAEmpacar = obtenerPedidoAEmpacar();
 				terminaEmpacadoEv.tiempo = T + obtenerDemoraDeEmbalado(pedidoAEmpacar);
@@ -308,6 +313,11 @@
 			if(STC <= SRC && reposicionCajasEv.tiempo == 99999)
 				reposicionCajasEv.tiempo = T + 24*60;				
 			
+		}
+
+		function sacarPedidoTerminadoDeEmpacado(){
+			NE--;
+			return colaE.shift();
 		}
 
 		function reposicionPlastico(){
