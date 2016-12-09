@@ -199,7 +199,7 @@
 				var tipoPomoAProducir = obtenerTipoPomoAProducir(maquinaImpresion);
 				var pedidoAImprimir = obtenerPedidoDe(maquinaImpresion, tipoPomoAProducir);
 				var demora = obtenerDemoraPreparacion(maquinaImpresion, tipoPomoAProducir);
-				terminaImpresionEv.tiempo = T + demora + obtenerDemoraDeImpresion(pedidoAImprimir);
+				terminaImpresionEv.tiempo = T + demora + obtenerDemoraDeImpresion(pedidoAImprimir.tamanioPedido);
 			}
 			
 			if(STPL <= SRPL && reposicionPlasticoEv.tiempo == HV)
@@ -227,7 +227,7 @@
 
 				var demora = obtenerDemoraPreparacion(maquinaImpresion , obtenerTipoPomoAProducir());
 
-				terminaImpresionEv.tiempo = T + demora + obtenerDemoraDeImpresion(unPedido);
+				terminaImpresionEv.tiempo = T + demora + obtenerDemoraDeImpresion(unPedido.tamanioPedido);
 			}
 			else {}//calculo de resultados
 			
@@ -238,7 +238,7 @@
 
 			var pedidoParaEmpacado = sacarPedidoTerminadoDe(maquinaImpresion);
 			consumoDePintura(pedidoParaEmpacado.tamanioPedido);
-			consumoDeLaca(pedidoParaEmpacado.tipoPomo, pedidoParaEmpacado.tamanioPedido);
+			consumoDeLaca(pedidoParaEmpacado);
 			NE++;
 
 			if(maquinaImpresion.numeroCola1 > 0 || maquinaImpresion.numeroCola2 > 0){
@@ -247,7 +247,7 @@
 				var tipoPomoAProducir = obtenerTipoPomoAProducir(maquinaImpresion);
 				var unPedido = obtenerPedidoDe(maquinaImpresion, tipoPomoAProducir);
 				var demora = obtenerDemoraPreparacion(maquinaImpresion, tipoPomoAProducir);
-				terminaImpresionEv.tiempo = T  + demora + obtenerDemoraDeImpresion();
+				terminaImpresionEv.tiempo = T  + demora + obtenerDemoraDeImpresion(unPedido.tamanioPedido);
 			}
 			else {
 				terminaImpresionEv.tiempo = HV;
@@ -312,7 +312,11 @@
 			reposicionCajasEv.tiempo = HV;
 		}
 		function obtenerTipoPomo(){
-
+			var R = Math.random();
+			if(R < 0.64)
+				return 'B2';
+			else
+				return 'B1';
 
 		}
 
@@ -322,13 +326,18 @@
 		}
 
 		function obtenerDemoraDeEmbalado(unPedido){
-			//hacer for por el tamaño de pedido leira
+			var demora = 0;
+
 			if(unPedido.tipoPomo == 'B1')
 				funcion = demoraEmbaladoB1; 
 			else 
 				funcion = demoraEmbaladoB2;
-		
-			for(var i=0; i++)
+			
+			for(var i=0; i < unPedido.tamanioPedido; i++){
+				demora=+ funcion();
+			}
+
+			return demora;
 		};
 		
 		function demoraEmbaladoB1(){//TE1
@@ -337,19 +346,32 @@
 		}
 
 		function demoraEmbaladoB2(){//TE2
-			var R = Math.random();
+			var R = Math.random();//TODO MODIFICAR, NO ES LA CORRECTA
 			return Math.round(95.055 / (Math.pow(((1/R) - 1),(1/3.419))) + 26.651);
 		}
 
-		function obtenerDemoraDeFabricacion(){
-			//1 hora cada 10kg. TODO
+		function obtenerDemoraDeFabricacion(unPedido){
+			var cantidadDeKilogramosDelPedido = consumoDePlastico(unPedido);
+			return cantidadDeKilogramosDelPedido / 10;
+
 		};
-		function obtenerDemoraDeImpresion(unPedido){//TI
-			//falta for por la cantidad
-			//esto es cada 1000
+		
+		function obtenerDemoraDeImpresion(tamanioPedido){//TI
+			var demora = 0;
+			
+			for(var i=0; i< cantidadLotes(tamanioPedido); i++){
+			
+			demora=+ demoraDeImpresion();
+			
+			}
+			
+			return demora;
+		};
+
+		function demoraDeImpresion(){
 			var R = Math.random();
 			return Math.round(32.835 / Math.pow((Math.log(1/R)),(1/2.6808)));
-		};
+		}
 
 		function consumoDePlastico(unPedido){
 			return unPedido.cantidadPomos * obtenerConsumoPlasticoIndividualSegun(unPedido.tipoPomo);
@@ -365,6 +387,14 @@
 
 		}
 		
+		function obtenerConsumoLacaIndividualSegun(tipoPomo){
+			if(tipoPomo == 'B1')
+				return 150/1000;
+			else
+				return 1000/1000;
+
+
+		}
 		function obtenerDemoraDeRecepcionDePlastico(){
 			return 8*60*2; // TODO está harcadoeado en 2 días, mañana lo corrijo
 		}
@@ -383,9 +413,8 @@
 			return Math.round((2.6507 * Math.tan(Math.PI * (R-0.5)) + 20.027)/5)*5;
 		}
 
-		function consumoDeLaca(tipoPomo, cantidadPomos){
-			//El consumo de laca esta determinado de acuerdo al tamanio del pomo (es un valor fijo por cada lote)
-			//TODO HACER QUE SI MIL CONSUMEN TANTO CUANTO CONSUME CADA UNO
+		function consumoDeLaca(unPedido){
+			return unPedido.tamanioPedido * obtenerConsumoLacaIndividualSegun(unPedido.tipoPomo);
 		}
 
 		function obtenerDemoraPreparacion(maquina, tipoPomoAProducir){
