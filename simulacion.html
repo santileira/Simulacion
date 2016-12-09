@@ -2,9 +2,11 @@
    <head>
    <title>Esta es una pagina web</title>
    <script type="text/javascript">
-		var NF1 , NF2, NI1 , NI2, NE, STP, STL, STPL, STC;//estado
+		var NF1, NF2, NI1, NI2, NE, STP, STL, STPL, STC;//estado
 		var M, N, SRC, SRPL, TPPL, TPC; //control
 		var T,HV,TF;
+		var sumatoriaDemoraPreparacionMaquina, sumatoriaDePermanenciaEnElSistema;
+		var porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinas;
 		
 		function inicializacion(){
 			debugger;
@@ -20,13 +22,15 @@
 			T = 0;
 			TF = 100000000;
 			HV = 99999;
+			sumatoriaDemoraPreparacionMaquina = 0;
+			sumatoriaDePermanenciaEnElSistema = 0;
+			porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinas = 0;
 		}
 
 		function B1(){
 
 
 		}
-
 
 
 		var llegadaPedidoEv = new Object();
@@ -45,8 +49,7 @@
 		var colaB2F = new Array();
 		var colaB1I = new Array();
 		var colaB2I = new Array();
-		var colaBE = new Array();
-		
+		var colaBE = new Array();		
 	
 		maquinaFabricacion.modulo = 0;
 		maquinaFabricacion.configuracionPomo = 'B1';
@@ -57,7 +60,6 @@
 		maquinaFabricacion.cola2 = colaB2F;
 		maquinaFabricacion.demoraDistintoPedido = 4;
 		maquinaFabricacion.demoraMismoPedido = 2;
-
 	
 		maquinaImpresion.modulo = 0;
 		maquinaImpresion.configuracionPomo = 'B1';
@@ -69,6 +71,8 @@
 		maquinaImpresion.demoraDistintoPedido = 8;
 		maquinaImpresion.demoraMismoPedido = 4;
 
+		var numeroColas = new Array(maquinaFabricacion.numeroCola1,maquinaFabricacion.numeroCola2
+									,maquinaImpresion.numeroCola1,maquinaImpresion.numeroCola2,NE);
 
 		llegadaPedidoEv.funcion = llegadaPedido;
 		terminaImpresionEv.funcion = terminaImpresion;
@@ -122,9 +126,9 @@
 		}
 
 		function llegadaPedido(){
-
-			T = llegadaPedido.tiempo;
-			llegadaPedido.tiempo = T + obtenerIntervaloPedido();
+			sumarPermanenciaEnElSistema(llegadaPedidoEv.tiempo);
+			T = llegadaPedidoEv.tiempo;
+			llegadaPedidoEv.tiempo = T + obtenerIntervaloPedido();
 			unPedido = creacionDePedido();
 
 			if(Math.random() < 0.91)
@@ -176,6 +180,7 @@
 
 		function terminaFabricacion(){
 
+			sumarPermanenciaEnElSistema(terminaFabricacionEv.tiempo);
 			T = terminaFabricacionEv.tiempo;
 
 			var pedidoParaImpresion = sacarPedidoTerminadoDe(maquinaFabricacion);
@@ -234,6 +239,7 @@
 		}
 
 		function terminaImpresion(){
+			sumarPermanenciaEnElSistema(terminaImpresionEv.tiempo);
 			T = terminaImpresionEv.tiempo;
 
 			var pedidoParaEmpacado = sacarPedidoTerminadoDe(maquinaImpresion);
@@ -281,6 +287,7 @@
 		}
 
 		function terminaEmpacado(terminaEmpacadoEv){
+			sumarPermanenciaEnElSistema(terminaEmpacadoEv.tiempo);
 			T = terminaEmpacadoEv.tiempo;
 			NE--;
 			if(NE > 1)
@@ -293,21 +300,25 @@
 		}
 
 		function reposicionPlastico(){
+			sumarPermanenciaEnElSistema(reposicionPlasticoEv.tiempo);
 			STPL = STPL + TPP;
 			reposicionPlasticoEv.tiempo = HV;
 		}
 
 		function reposicionLaca(){
+			sumarPermanenciaEnElSistema(reposicionLavaEv.tiempo);
 			STL = STL + 20;
 			reposicionLavaEv.tiempo = HV;
 		}
 
 		function reposicionPintura(){
+			sumarPermanenciaEnElSistema(reposicionPinturaEv.tiempo);
 			STP = STP + 5;
 			reposicionPinturaEv.tiempo = HV;
 		}
 
 		function reposicionCajas(){
+			sumarPermanenciaEnElSistema(reposicionCajasEv.tiempo);
 			STC = STC + TPC;
 			reposicionCajasEv.tiempo = HV;
 		}
@@ -393,12 +404,14 @@
 			if(maquina.configuracionPomo != tipoPomoAProducir){
 				maquina.modulo = Math.ceil(maquina.modulo/maquina.cantTipoConsecutivo)*maquina.cantTipoConsecutivo + 1;
 				maquina.configuracionPomo = tipoPomoAProducir;
-				return maquina.demoraDistintoPedido;
+				var demora = maquina.demoraDistintoPedido;
 			}else{
 				maquina.modulo++;
-				return maquina.demoraMismoPedido;
+				var demora = maquina.demoraMismoPedido;
 			}
 
+			sumatoriaDemoraPreparacionMaquina = sumatoriaDemoraPreparacionMaquina + demora;
+			return demora;
 		}
 		
 		function obtenerTipoPomoAProducir(maquina){
@@ -408,11 +421,6 @@
 			else
 				maquina.numeroCola2 > 0 ? 'B2' : 'B1';					
 
-		}
-
-		function obtenerDemoraPreparacionDeImpresion(){
-			var moduloCorrector = obtenerEstadoMaquina();
-			var demora;
 		}
 
 		function obtenerDemoraMismaCola(maquina){ 
@@ -432,6 +440,16 @@
 				maquina.configuracionPomo = 'B2';
 		}
 
+		function sumarPermanenciaEnElSistema(tiempoEvento){
+			for (var i = 0; i < numeroColas.length; i++) {
+    			sumatoriaDePermanenciaEnElSistema = sumatoriaDePermanenciaEnElSistema + numeroColas[i]*(tiempoEvento - T);
+			}
+		}
+
+		function calculoDeResultados(){
+			porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinas = 
+				(sumatoriaDemoraPreparacionMaquina * 100)/sumatoriaDePermanenciaEnElSistema;
+		}
 
    </script>
    </head>
