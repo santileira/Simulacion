@@ -71,7 +71,7 @@
 			STC = TPC;
 			//
 			T = 0;
-			TF = 100000000;
+			TF = 10000;
 			HV = 99999;
 
 			//Resultado
@@ -100,8 +100,8 @@
 			maquinaFabricacion.numeroCola2 = NF2;
 			maquinaFabricacion.cola1 = colaB1F;
 			maquinaFabricacion.cola2 = colaB2F;
-			maquinaFabricacion.demoraDistintoPedido = 4;
-			maquinaFabricacion.demoraMismoPedido = 2;
+			maquinaFabricacion.demoraDistintoPedido = 4*60;
+			maquinaFabricacion.demoraMismoPedido = 2*60;
 		
 			maquinaImpresion.modulo = 0;
 			maquinaImpresion.configuracionPomo = 'B1';
@@ -110,8 +110,8 @@
 			maquinaImpresion.numeroCola2 = NI2;
 			maquinaImpresion.cola1 = colaB1I;
 			maquinaImpresion.cola2 = colaB2I;
-			maquinaImpresion.demoraDistintoPedido = 8;
-			maquinaImpresion.demoraMismoPedido = 4;
+			maquinaImpresion.demoraDistintoPedido = 8*60;
+			maquinaImpresion.demoraMismoPedido = 4*60;
 		}
 
 		function inicializarEventos(){
@@ -130,7 +130,7 @@
 
 
 			eventosFuturos.forEach(function(elemento, indice){elemento.tiempo = HV;});
-			eventosFuturos.llegadaPedido = 0;
+			llegadaPedidoEv.tiempo = 0;
 		}
 
 		function iniciarSimulacion() {
@@ -150,6 +150,9 @@
 				eventoFuturo.funcion(eventoFuturo);
 			}
 			while(T <= TF);
+			calculoDeResultados();
+			impresionDeResultados();
+
 		}
 
 		function obtenerEventoFuturoProximo() {
@@ -292,13 +295,13 @@
 		}
 		function reposicionPlastico(){
 			sumarPermanenciaEnElSistema(reposicionPlasticoEv.tiempo);
-			STPL = STPL + TPP;
+			STPL = STPL + TPPL;
 			reposicionPlasticoEv.tiempo = HV;
 		}
 		function reposicionLaca(){
-			sumarPermanenciaEnElSistema(reposicionLavaEv.tiempo);
+			sumarPermanenciaEnElSistema(reposicionLacaEv.tiempo);
 			STL = STL + 20;
-			reposicionLavaEv.tiempo = HV;
+			reposicionLacaEv.tiempo = HV;
 		}
 		function reposicionPintura(){
 			sumarPermanenciaEnElSistema(reposicionPinturaEv.tiempo);
@@ -331,13 +334,13 @@
 			unPedido.tipoPedido = 'IE';
 			cantidadPedidosIE++;
 
-			ubicarEnColaDeImpresion(unPedido);
+			ubicarEnColaDe(maquinaImpresion,unPedido);
 
 			if(maquinaImpresion.numeroCola1 + maquinaImpresion.numeroCola2 == 1){
 
 				actualizarEstadoMaquina(maquinaImpresion);
 
-				var demora = obtenerDemoraPreparacion(maquinaImpresion , obtenerTipoPomoAProducir());
+				var demora = obtenerDemoraPreparacion(maquinaImpresion , obtenerTipoPomoAProducir(maquinaImpresion));
 
 				terminaImpresionEv.tiempo = T + demora + obtenerDemoraDeImpresion(unPedido.tamanioPedido);
 
@@ -354,7 +357,7 @@
 			STP =- cantidadLotes(cantidadPomos) * obtenerCantPinturaPorLote() / 1000;
 		}	
 		function consumirLaca(unPedido){
-			STL =- unPedido.tamanioPedido * obtenerConsumoLacaIndividualSegun(unPedido.tipoPomo);
+			STL =- unPedido.tamanioPedido * obtenerConsumoLacaIndividualSegun(unPedido);
 		}
 		function obtenerConsumoLacaIndividualSegun(unPedido){	
 			return unPedido.consumoLacaPorLote / 1000;
@@ -382,9 +385,9 @@
 
 
 			if(tipoPomoAProducir == 'B1')
-				return maquina.numeroCola1[0];
+				return maquina.cola1[0];
 			else
-				return maquina.numeroCola2[0];
+				return maquina.cola2[0];
 		}
 		function obtenerPedidoAEmpacar(){
 			return colaE[0];
@@ -462,7 +465,6 @@
 		function calculoDeResultados(){
 			porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinas = 
 				(sumatoriaDemoraPreparacionMaquina * 100)/T;
-
 			porcentajeDeTiempoOciosoFabricacion = (sumatoriaDeTiempoOciosoFabricacion * 100)/T;
 			porcentajeDeTiempoOciosoImpresion = (sumatoriaDeTiempoOciosoImpresion * 100)/T;
 			porcentajeDeTiempoOciosoEmpaque1 = (sumatoriaDeTiempoOciosoEmpaque1 * 100)/T;
@@ -470,7 +472,15 @@
 			promedioTiempoProduccionFIE = (sumatoriaTiempoProduccionFIE)/cantidadPedidosFIE;
 			promedioTiempoProduccionIE = (sumatoriaTiempoProduccionIE)/cantidadPedidosIE;
 		}
-
+		function impresionDeResultados(){
+			console.log("Porcentaje de tiempo utilizado en preparación de máquinas " + porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinas);
+			console.log("Porcentaje de tiempo ocioso fabricación " + porcentajeDeTiempoOciosoFabricacion);
+			console.log("Porcentaje de tiempo ocioso impresión " + porcentajeDeTiempoOciosoImpresion);
+			console.log("Porcentaje de tiempo ocioso empaque 1 " + porcentajeDeTiempoOciosoEmpaque1);
+			console.log("Porcentaje de tiempo ocioso empaque 2 " + porcentajeDeTiempoOciosoEmpaque2);
+			console.log("Promedio de tiempo producción FIE " + promedioTiempoProduccionFIE);
+			console.log("Promedio de tiempo producción IE " + promedioTiempoProduccionIE);
+		}
 		///////////////////////////////////////FDP////////////////////////////////////////////////
 		function obtenerIntervaloPedido(){//IP
 			var R = Math.random();
@@ -572,6 +582,10 @@
 		<div class="input-group">
 	  		<input id="SRC" type="text" class="form-control" placeholder="Stock de reposición de cajas">
 		</div>
+
+		<div class="input-group">
+	  		<input id="TPC" type="text" class="form-control" placeholder="Tamaño pedido cajas">
+		</div>
 		
 		<div class="input-group">
 	  		<input id="SRPL" type="text" class="form-control" placeholder="Stock de reposición de plástico">
@@ -579,10 +593,6 @@
 		
 		<div class="input-group">
 	  		<input id="TPPL" type="text" class="form-control" placeholder="Tamaño pedido plástico">
-		</div>
-		
-		<div class="input-group">
-	  		<input id="TPC" type="text" class="form-control" placeholder="Tamaño pedido cajas">
 		</div>
 	   
 		<div class="btn-group" role="group" aria-label="...">
