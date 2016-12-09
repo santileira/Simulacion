@@ -395,16 +395,16 @@
 			}		
 		}///////////////////////CONSUMOS///////////////////////////
 		function consumirPlastico(unPedido){
-			STPL =- unPedido.tamanioPedido * unPedido.consumoPlasticoInd;
+			STPL -= unPedido.tamanioPedido * unPedido.consumoPlasticoInd;
 		};
 		function consumirCajas(unPedido){
-			STC =- Math.ceil(unPedido.tamanioPedido / unPedido.cantidadPorCaja);
+			STC -= Math.ceil(unPedido.tamanioPedido / unPedido.cantidadPorCaja);
 		};
 		function consumirPintura(cantidadPomos){//CONS_PINT
-			STP =- cantidadLotes(cantidadPomos) * obtenerCantPinturaPorLote() / 1000;
+			STP -= cantidadLotes(cantidadPomos) * obtenerCantPinturaPorLote() / 1000;
 		}	
 		function consumirLaca(unPedido){
-			STL =- unPedido.tamanioPedido * obtenerConsumoLacaIndividualSegun(unPedido);
+			STL -= unPedido.tamanioPedido * obtenerConsumoLacaIndividualSegun(unPedido);
 		}
 		function obtenerConsumoLacaIndividualSegun(unPedido){	
 			return unPedido.consumoLacaPorLote / 1000;
@@ -486,7 +486,7 @@
 				var demora = maquina.demoraMismoPedido;
 			}
 
-			maquina.sumatoriaDemoraPreparacionMaquina =+ demora;
+			maquina.sumatoriaDemoraPreparacionMaquina += demora;
 			return demora;
 		}
 		////////////////////////////////////////RESULTADOS////////////////////////////////////////////
@@ -572,9 +572,7 @@
 			var demora = 0;
 			
 			for(var i=0; i< cantidadLotes(tamanioPedido); i++){
-			
-			demora=+ demoraDeImpresion();
-			
+				demora += demoraDeImpresion();
 			}
 			
 			return demora;
