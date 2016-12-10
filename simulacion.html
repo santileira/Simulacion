@@ -259,7 +259,7 @@
 			}
 			
 			if(STPL <= SRPL && reposicionPlasticoEv.tiempo == HV)
-				reposicionPlasticoEv.tiempo = T + obtenerDemoraDeRecepcionDePlastico();
+				reposicionPlasticoEv.tiempo = T + obtenerDemoraDeRecepcionDePlastico() * 60;
 		}
 		function terminaImpresion(){
 			sumarPermanenciaEnElSistema(terminaImpresionEv.tiempo);
@@ -603,13 +603,13 @@
 		function obtenerDemoraDeRecepcionDePlastico(){//DE
 			var m = 0.3;
 			var f = function(x){
-				return Math.exp(-0.5 * Math.pow(((Math.log(x) - 7.506) / 0.2628),2)) / (0.2628 * Math.sqrt(2 * Math.PI) * x); 
+				return Math.exp(-0.5 * Math.pow(((Math.log(x + 91.5) - 4.6401) / 0.04127),2)) / (0.04127 * Math.sqrt(2 * Math.PI) * (x + 91.5));
 			}
 	
 			while(true){
 				var R1 = Math.random();
 				var R2 = Math.random();
-				var xi = Math.round((2000)*R1 + 1000);
+				var xi = Math.round(16 * R1 + 4);
 				var yi = m * R2;
 				if(yi <= f(xi)){
 					return xi;
