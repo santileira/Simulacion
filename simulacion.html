@@ -104,6 +104,7 @@
 		function inicializarMaquinas(){
 			maquinaFabricacion.modulo = 0;
 			maquinaFabricacion.configuracionPomo = 'B1';
+			maquinaFabricacion.configuracionPomoAnterior = 'B1';
 			maquinaFabricacion.cantTipoConsecutivo = M;
 			maquinaFabricacion.numeroCola1 = NF1;
 			maquinaFabricacion.numeroCola2 = NF2;
@@ -113,8 +114,10 @@
 			maquinaFabricacion.demoraMismoPedido = 2*60;
 			maquinaFabricacion.sumatoriaDemoraPreparacionMaquina = 0;
 
+
 			maquinaImpresion.modulo = 0;
 			maquinaImpresion.configuracionPomo = 'B1';
+			maquinaImpresion.configuracionPomoAnterior = 'B1';
 			maquinaImpresion.cantTipoConsecutivo = N;
 			maquinaImpresion.numeroCola1 = NI1;
 			maquinaImpresion.numeroCola2 = NI2;
@@ -232,6 +235,7 @@
 			T = terminaFabricacionEv.tiempo;
 
 			var pedidoParaImpresion = sacarPedidoTerminadoDe(maquinaFabricacion);
+			console.log(pedidoParaImpresion.tipoPomo);
 			consumirPlastico(pedidoParaImpresion);
 			ubicarEnColaDe(maquinaImpresion , pedidoParaImpresion);
 
@@ -366,7 +370,6 @@
 			if(maquinaFabricacion.numeroCola1 + maquinaFabricacion.numeroCola2 == 1){
 			
 				actualizarEstadoMaquina(maquinaFabricacion);
-			
 				var demora = obtenerDemoraPreparacion(maquinaFabricacion, obtenerTipoPomoAProducir(maquinaFabricacion));
 				terminaFabricacionEv.tiempo = T + demora + obtenerDemoraDeFabricacion(unPedido);
 
@@ -447,16 +450,18 @@
 		}
 		function sacarPedidoTerminadoDeEmpacado(){
 			NE--;
-			if(colaE.length == 0)
-				debugger;
 			return colaE.shift();
 		}
 
 		function actualizarEstadoMaquina(maquina){
-			if(maquina.modulo % (maquina.cantTipoConsecutivo*2) < maquina.cantTipoConsecutivo)
+			if(maquina.modulo % (maquina.cantTipoConsecutivo*2) < maquina.cantTipoConsecutivo){
+				maquina.configuracionPomoAnterior = maquina.configuracionPomo;
 				maquina.configuracionPomo = 'B1';			
-			else
+			}
+			else{
+				maquina.configuracionPomoAnterior = maquina.configuracionPomo;
 				maquina.configuracionPomo = 'B2';
+			}
 		}
 		function obtenerTipoPomoAProducir(maquina){
 
@@ -477,15 +482,20 @@
 				else 
 					maquina.modulo = maquina.cantTipoConsecutivo + 1;
 
+				var demoraPreparacion = maquina.configuracionPomo == maquina.configuracionPomoAnterior ? maquina.demoraDistintoPedido :
+				maquina.demoraMismoPedido;
+
+				maquina.configuracionPomoAnterior = maquina.configuracionPomo;
 				maquina.configuracionPomo = tipoPomoAProducir;
-				var demora = maquina.demoraDistintoPedido;
+
+
 			}else{
 				maquina.modulo++;
-				var demora = maquina.demoraMismoPedido;
+				var demoraPreparacion = maquina.configuracionPomoAnterior != maquina.configuracionPomo ? maquina.demoraDistintoPedido : maquina.demoraMismoPedido;
 			}
 
-			maquina.sumatoriaDemoraPreparacionMaquina += demora;
-			return demora;
+			maquina.sumatoriaDemoraPreparacionMaquina += demoraPreparacion;
+			return demoraPreparacion;
 		}
 		////////////////////////////////////////RESULTADOS////////////////////////////////////////////
 		function sumarPermanenciaEnElSistema(tiempoEvento){
