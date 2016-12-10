@@ -75,7 +75,7 @@
 			//
 			T = 0;
 			TF = 75000;
-			HV = 99999;
+			HV = 999999999;
 
 			//Resultado
 			sumatoriaDePermanenciaEnElSistema = 0;
@@ -171,8 +171,6 @@
 		}
 		
 		function proximoEvento(){
-		console.log("<" + maquinaFabricacion.numeroCola1 + "," + maquinaFabricacion.numeroCola2 +
-						"> <" + maquinaImpresion.numeroCola1 + "," + maquinaImpresion.numeroCola2 + "> <" + NE + ">");
 			eventoFuturo = obtenerEventoFuturoProximo()
 			eventoFuturo.funcion(eventoFuturo);
 			evaluarCostoQuincena();
@@ -230,7 +228,6 @@
 				llegaPedidoImpresion(unPedido);
 		}
 		function terminaFabricacion(){
-
 			sumarPermanenciaEnElSistema(terminaFabricacionEv.tiempo);
 			T = terminaFabricacionEv.tiempo;
 
@@ -243,6 +240,7 @@
 				var tipoPomoAProducir = obtenerTipoPomoAProducir(maquinaFabricacion);
 				var pedidoAFabricar = obtenerPedidoDe(maquinaFabricacion, tipoPomoAProducir);
 				var demora = obtenerDemoraPreparacion(maquinaFabricacion, tipoPomoAProducir);
+			
 				terminaFabricacionEv.tiempo = T + demora + obtenerDemoraDeFabricacion(pedidoAFabricar);
 			}
 			else
@@ -361,17 +359,15 @@
 			sumarCosto(14 * TPC);
 		}
 		function llegaPedidoCompleto(unPedido){
+
 			unPedido.tipoPedido = 'FIE';
 			cantidadPedidosFIE++;
-
 			ubicarEnColaDe(maquinaFabricacion,unPedido);
-
 			if(maquinaFabricacion.numeroCola1 + maquinaFabricacion.numeroCola2 == 1){
 			
 				actualizarEstadoMaquina(maquinaFabricacion);
 			
 				var demora = obtenerDemoraPreparacion(maquinaFabricacion, obtenerTipoPomoAProducir(maquinaFabricacion));
-
 				terminaFabricacionEv.tiempo = T + demora + obtenerDemoraDeFabricacion(unPedido);
 
 				sumatoriaDeTiempoOciosoFabricacion += (T- instanteTiempoOciosoFabricacion); 
@@ -451,11 +447,13 @@
 		}
 		function sacarPedidoTerminadoDeEmpacado(){
 			NE--;
+			if(colaE.length == 0)
+				debugger;
 			return colaE.shift();
 		}
 
 		function actualizarEstadoMaquina(maquina){
-			if(maquina.modulo % maquina.cantTipoConsecutivo*2 < maquina.cantTipoConsecutivo)
+			if(maquina.modulo % (maquina.cantTipoConsecutivo*2) < maquina.cantTipoConsecutivo)
 				maquina.configuracionPomo = 'B1';			
 			else
 				maquina.configuracionPomo = 'B2';
@@ -469,7 +467,7 @@
 		}
 		function obtenerDemoraDeFabricacion(unPedido){
 			var cantidadDeKilogramosDelPedido = unPedido.tamanioPedido * unPedido.consumoPlasticoInd;
-			return cantidadDeKilogramosDelPedido * 6;
+			return cantidadDeKilogramosDelPedido * 30;
 		};
 		function obtenerDemoraPreparacion(maquina, tipoPomoAProducir){
 			
@@ -531,6 +529,8 @@
 				(maquinaFabricacion.sumatoriaDemoraPreparacionMaquina * 100)/T;
 			porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaImpresion = 
 				(maquinaImpresion.sumatoriaDemoraPreparacionMaquina * 100)/T;
+			console.log("Cantidad de tiempo en preparacion máquina fabricación " + maquinaFabricacion.sumatoriaDemoraPreparacionMaquina);
+			console.log("Cantidad de tiempo en preparacion máquina impresión " + maquinaImpresion.sumatoriaDemoraPreparacionMaquina);
 			porcentajeDeTiempoOciosoFabricacion = (sumatoriaDeTiempoOciosoFabricacion * 100)/T;
 			porcentajeDeTiempoOciosoImpresion = (sumatoriaDeTiempoOciosoImpresion * 100)/T;
 			porcentajeDeTiempoOciosoEmpaque1 = (sumatoriaDeTiempoOciosoEmpaque1 * 100)/T;
@@ -627,7 +627,7 @@
 		}
 		function obtenerTipoPomo(){
 			var R = Math.random();
-			if(R < 0.64)
+			if(R < 0.55)
 				return 'B2';
 			else
 				return 'B1';
