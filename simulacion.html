@@ -162,6 +162,7 @@
 				proximoEvento();
 			}
 			while(T <= TF);
+			console.log("Empezó vaciamiento");
 			vaciamiento();
 			
 			calculoDeResultados();
@@ -170,6 +171,8 @@
 		}
 		
 		function proximoEvento(){
+		console.log("<" + maquinaFabricacion.numeroCola1 + "," + maquinaFabricacion.numeroCola2 +
+						"> <" + maquinaImpresion.numeroCola1 + "," + maquinaImpresion.numeroCola2 + "> <" + NE + ">");
 			eventoFuturo = obtenerEventoFuturoProximo()
 			eventoFuturo.funcion(eventoFuturo);
 			evaluarCostoQuincena();
@@ -260,6 +263,7 @@
 			
 			if(STPL <= SRPL && reposicionPlasticoEv.tiempo == HV)
 				reposicionPlasticoEv.tiempo = T + obtenerDemoraDeRecepcionDePlastico() * 60;
+				
 		}
 		function terminaImpresion(){
 			sumarPermanenciaEnElSistema(terminaImpresionEv.tiempo);
@@ -465,7 +469,7 @@
 		}
 		function obtenerDemoraDeFabricacion(unPedido){
 			var cantidadDeKilogramosDelPedido = unPedido.tamanioPedido * unPedido.consumoPlasticoInd;
-			return cantidadDeKilogramosDelPedido / 10;
+			return cantidadDeKilogramosDelPedido * 6;
 		};
 		function obtenerDemoraPreparacion(maquina, tipoPomoAProducir){
 			
