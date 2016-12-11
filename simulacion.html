@@ -235,7 +235,7 @@
 			T = terminaFabricacionEv.tiempo;
 
 			var pedidoParaImpresion = sacarPedidoTerminadoDe(maquinaFabricacion);
-			console.log(pedidoParaImpresion.tipoPomo);
+
 			consumirPlastico(pedidoParaImpresion);
 			ubicarEnColaDe(maquinaImpresion , pedidoParaImpresion);
 
@@ -273,6 +273,7 @@
 
 			var pedidoParaEmpacado = sacarPedidoTerminadoDe(maquinaImpresion);
 			ubicarEnColaDeEmpaque(pedidoParaEmpacado);
+
 			consumirPintura(pedidoParaEmpacado.tamanioPedido);
 			consumirLaca(pedidoParaEmpacado);
 
@@ -379,7 +380,6 @@
 		function llegaPedidoImpresion(unPedido){
 			unPedido.tipoPedido = 'IE';
 			cantidadPedidosIE++;
-
 			ubicarEnColaDe(maquinaImpresion,unPedido);
 
 			if(maquinaImpresion.numeroCola1 + maquinaImpresion.numeroCola2 == 1){
@@ -535,10 +535,10 @@
 			}
 		}
 		function calculoDeResultados(){
-			/*porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaFabricacion = 
+			porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaFabricacion = 
 				(maquinaFabricacion.sumatoriaDemoraPreparacionMaquina * 100)/T;
 			porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaImpresion = 
-				(maquinaImpresion.sumatoriaDemoraPreparacionMaquina * 100)/T;*/
+				(maquinaImpresion.sumatoriaDemoraPreparacionMaquina * 100)/T;
 			porcentajeDeTiempoOciosoFabricacion = (sumatoriaDeTiempoOciosoFabricacion * 100)/T;
 			porcentajeDeTiempoOciosoImpresion = (sumatoriaDeTiempoOciosoImpresion * 100)/T;
 			porcentajeDeTiempoOciosoEmpaque1 = (sumatoriaDeTiempoOciosoEmpaque1 * 100)/T;
@@ -553,6 +553,8 @@
 				maquinaFabricacion.sumatoriaDemoraPreparacionMaquina);
 			console.log("Tiempo utilizado en preparación de máquina impresión " + 
 				maquinaImpresion.sumatoriaDemoraPreparacionMaquina);
+			console.log("Porcentaje de tiempo utilizado para fabricación " + porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaFabricacion);
+			console.log("Porcentaje de tiempo utilizado para impresión " + porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaImpresion);
 			console.log("Porcentaje de tiempo ocioso fabricación " + porcentajeDeTiempoOciosoFabricacion);
 			console.log("Porcentaje de tiempo ocioso impresión " + porcentajeDeTiempoOciosoImpresion);
 			console.log("Porcentaje de tiempo ocioso empaque 1 " + porcentajeDeTiempoOciosoEmpaque1);
