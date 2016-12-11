@@ -94,7 +94,7 @@
 			sumatoriaTiempoProduccionIE = 0;
 			gananciaTotal = 0;
 			costoTotal = 0;
-			costoQuincena = 0;
+			costoQuincena = (30 * TPPL + 1200) + (14 * TPC) + 1500 + 2000;
 			ultimaQuincena = -1; // auxiliar para calcular costo quincena
 			maximoCostoQuincena = -1;
 			cantidadPedidosPlastico = 0;
@@ -235,7 +235,6 @@
 			T = terminaFabricacionEv.tiempo;
 
 			var pedidoParaImpresion = sacarPedidoTerminadoDe(maquinaFabricacion);
-
 			consumirPlastico(pedidoParaImpresion);
 			ubicarEnColaDe(maquinaImpresion , pedidoParaImpresion);
 
@@ -536,19 +535,20 @@
 		}
 		function calculoDeResultados(){
 			porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaFabricacion = 
-				(maquinaFabricacion.sumatoriaDemoraPreparacionMaquina * 100)/T;
+				(maquinaFabricacion.sumatoriaDemoraPreparacionMaquina * 100)/TF;
 			porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaImpresion = 
-				(maquinaImpresion.sumatoriaDemoraPreparacionMaquina * 100)/T;
-			porcentajeDeTiempoOciosoFabricacion = (sumatoriaDeTiempoOciosoFabricacion * 100)/T;
-			porcentajeDeTiempoOciosoImpresion = (sumatoriaDeTiempoOciosoImpresion * 100)/T;
-			porcentajeDeTiempoOciosoEmpaque1 = (sumatoriaDeTiempoOciosoEmpaque1 * 100)/T;
-			porcentajeDeTiempoOciosoEmpaque2 = (sumatoriaDeTiempoOciosoEmpaque2 * 100)/T;
+				(maquinaImpresion.sumatoriaDemoraPreparacionMaquina * 100)/TF;
+			porcentajeDeTiempoOciosoFabricacion = (sumatoriaDeTiempoOciosoFabricacion * 100)/TF;
+			porcentajeDeTiempoOciosoImpresion = (sumatoriaDeTiempoOciosoImpresion * 100)/TF;
+			porcentajeDeTiempoOciosoEmpaque1 = (sumatoriaDeTiempoOciosoEmpaque1 * 100)/TF;
+			porcentajeDeTiempoOciosoEmpaque2 = (sumatoriaDeTiempoOciosoEmpaque2 * 100)/TF;
 			promedioTiempoProduccionFIE = (sumatoriaTiempoProduccionFIE)/cantidadPedidosFIE;
 			promedioTiempoProduccionIE = isNaN(sumatoriaTiempoProduccionIE/cantidadPedidosIE) ? 0 : sumatoriaTiempoProduccionIE/cantidadPedidosIE;
 			beneficio = gananciaTotal - costoTotal;
-			promedioCostoQuincena = costoTotal / (Math.round(T/(8*60*15)));
+			promedioCostoQuincena = costoTotal / (Math.round(TF/(8*60*15)));
 		}
 		function impresionDeResultados(){
+
 			console.log("Tiempo utilizado en preparación de máquina fabricación " + 
 				maquinaFabricacion.sumatoriaDemoraPreparacionMaquina);
 			console.log("Tiempo utilizado en preparación de máquina impresión " + 
