@@ -271,6 +271,7 @@
 
 			var pedidoParaEmpacado = sacarPedidoTerminadoDe(maquinaImpresion);
 			ubicarEnColaDeEmpaque(pedidoParaEmpacado);
+
 			consumirPintura(pedidoParaEmpacado.tamanioPedido);
 			consumirLaca(pedidoParaEmpacado);
 
@@ -377,7 +378,6 @@
 		function llegaPedidoImpresion(unPedido){
 			unPedido.tipoPedido = 'IE';
 			cantidadPedidosIE++;
-
 			ubicarEnColaDe(maquinaImpresion,unPedido);
 
 			if(maquinaImpresion.numeroCola1 + maquinaImpresion.numeroCola2 == 1){
@@ -547,10 +547,13 @@
 			promedioCostoQuincena = costoTotal / (Math.round(T/(8*60*15)));
 		}
 		function impresionDeResultados(){
-			console.log("Porcentaje de tiempo utilizado en preparación de máquina fabricación " + 
-				porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaFabricacion);
-			console.log("Porcentaje de tiempo utilizado en preparación de máquina impresión " + 
-				porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaImpresion);
+
+			console.log("Tiempo utilizado en preparación de máquina fabricación " + 
+				maquinaFabricacion.sumatoriaDemoraPreparacionMaquina);
+			console.log("Tiempo utilizado en preparación de máquina impresión " + 
+				maquinaImpresion.sumatoriaDemoraPreparacionMaquina);
+			console.log("Porcentaje de tiempo utilizado para fabricación " + porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaFabricacion);
+			console.log("Porcentaje de tiempo utilizado para impresión " + porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaImpresion);
 			console.log("Porcentaje de tiempo ocioso fabricación " + porcentajeDeTiempoOciosoFabricacion);
 			console.log("Porcentaje de tiempo ocioso impresión " + porcentajeDeTiempoOciosoImpresion);
 			console.log("Porcentaje de tiempo ocioso empaque 1 " + porcentajeDeTiempoOciosoEmpaque1);
