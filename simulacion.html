@@ -165,7 +165,6 @@
 				proximoEvento();
 			}
 			while(T <= TF);
-			console.log("Empezó vaciamiento");
 			vaciamiento();
 			
 			calculoDeResultados();
@@ -535,17 +534,17 @@
 		}
 		function calculoDeResultados(){
 			porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaFabricacion = 
-				(maquinaFabricacion.sumatoriaDemoraPreparacionMaquina * 100)/TF;
+				(maquinaFabricacion.sumatoriaDemoraPreparacionMaquina * 100)/T;
 			porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaImpresion = 
-				(maquinaImpresion.sumatoriaDemoraPreparacionMaquina * 100)/TF;
-			porcentajeDeTiempoOciosoFabricacion = (sumatoriaDeTiempoOciosoFabricacion * 100)/TF;
-			porcentajeDeTiempoOciosoImpresion = (sumatoriaDeTiempoOciosoImpresion * 100)/TF;
-			porcentajeDeTiempoOciosoEmpaque1 = (sumatoriaDeTiempoOciosoEmpaque1 * 100)/TF;
-			porcentajeDeTiempoOciosoEmpaque2 = (sumatoriaDeTiempoOciosoEmpaque2 * 100)/TF;
+				(maquinaImpresion.sumatoriaDemoraPreparacionMaquina * 100)/T;
+			porcentajeDeTiempoOciosoFabricacion = (sumatoriaDeTiempoOciosoFabricacion * 100)/T;
+			porcentajeDeTiempoOciosoImpresion = (sumatoriaDeTiempoOciosoImpresion * 100)/T;
+			porcentajeDeTiempoOciosoEmpaque1 = (sumatoriaDeTiempoOciosoEmpaque1 * 100)/T;
+			porcentajeDeTiempoOciosoEmpaque2 = (sumatoriaDeTiempoOciosoEmpaque2 * 100)/T;
 			promedioTiempoProduccionFIE = (sumatoriaTiempoProduccionFIE)/cantidadPedidosFIE;
 			promedioTiempoProduccionIE = isNaN(sumatoriaTiempoProduccionIE/cantidadPedidosIE) ? 0 : sumatoriaTiempoProduccionIE/cantidadPedidosIE;
 			beneficio = gananciaTotal - costoTotal;
-			promedioCostoQuincena = costoTotal / (Math.round(TF/(8*60*15)));
+			promedioCostoQuincena = costoTotal / (Math.round(T/(8*60*15)));
 		}
 		function impresionDeResultados(){
 			console.log("Porcentaje de tiempo utilizado en preparación de máquina fabricación " + 
@@ -558,9 +557,10 @@
 			console.log("Porcentaje de tiempo ocioso empaque 2 " + porcentajeDeTiempoOciosoEmpaque2);
 			console.log("Promedio de tiempo producción FIE " + promedioTiempoProduccionFIE);
 			console.log("Promedio de tiempo producción IE " + promedioTiempoProduccionIE);
-			console.log("Beneficio total " + beneficio);
+			console.log("Costo total " + costoTotal);
 			console.log("Maximo costo por quincena " + maximoCostoQuincena);
 			console.log("Promedio de costo por quincena " + promedioCostoQuincena);
+			console.log("Beneficio total " + beneficio);
 			console.log("Cantidad pedidos plastico " + cantidadPedidosPlastico);
 			console.log("Cantidad pedidos caja " + cantidadPedidosCaja);
 		}
