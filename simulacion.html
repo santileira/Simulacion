@@ -37,16 +37,29 @@
 		var datosStockCajas;
 		var datosStockLaca;
 		var datosStockPintura;
+		var datosEmpacado1;
+		var datosCostoPorQuincena;
+		var datosFIE;
+		var datosIE;
+		var cantidadPedidosTerminadosFIE, cantidadPedidosTerminadosIE;
 
 		function inicializarGraficos(){
 			datosStockPlastico = new Array();
 			datosStockCajas = new Array();
 			datosStockLaca = new Array();
 			datosStockPintura = new Array();
+			datosEmpacado1 = new Array();
+			datosCostoPorQuincena = new Array();
+			datosFIE = new Array();
+			datosIE = new Array();
 			$('#graficoPlastico').empty();
 			$('#graficoCajas').empty();
 			$('#graficoLaca').empty();
 			$('#graficoPintura').empty();
+			$('#graficoEmpacado1').empty();
+			$('#graficoQuincena').empty();
+			$('#graficoFIE').empty();
+			$('#graficoIE').empty();
 
 
 		}
@@ -101,8 +114,8 @@
 			
 			//
 			T = 0;
-			TF = 75000;
-			HV = 999999999;
+			TF = 200000;
+			HV = 9999999999;
 
 			//Resultado
 			sumatoriaDePermanenciaEnElSistema = 0;
@@ -121,11 +134,13 @@
 			sumatoriaTiempoProduccionIE = 0;
 			gananciaTotal = 0;
 			costoTotal = 0;
-			costoQuincena = (30 * TPPL + 1200) + (14 * TPC) + 1500 + 2000;
+			costoQuincena = 0;//(30 * TPPL + 1200) + (14 * TPC) + 1500 + 2000;
 			ultimaQuincena = -1; // auxiliar para calcular costo quincena
 			maximoCostoQuincena = -1;
 			cantidadPedidosPlastico = 0;
 			cantidadPedidosCaja = 0;
+			cantidadPedidosTerminadosIE = 0;
+			cantidadPedidosTerminadosFIE = 0;
 		}
 
 		function inicializarMaquinas(){
@@ -228,7 +243,7 @@
 			pedido = new Object();
 			pedido.tipoPomo = obtenerTipoPomo();
 			pedido.tamanioPedido = obtenerTamanioPedido();
-			pedido.tiempoComienzo = T;
+	
 			actualizarInformacionPedido(pedido);
 			return pedido;
 		}
@@ -268,9 +283,11 @@
 			ubicarEnColaDe(maquinaImpresion , pedidoParaImpresion);
 
 			if(maquinaFabricacion.numeroCola1 > 0 || maquinaFabricacion.numeroCola2 > 0){
+
 				actualizarEstadoMaquina(maquinaFabricacion);
 				var tipoPomoAProducir = obtenerTipoPomoAProducir(maquinaFabricacion);
 				var pedidoAFabricar = obtenerPedidoDe(maquinaFabricacion, tipoPomoAProducir);
+				pedidoAFabricar.tiempoComienzo = T;
 				var demora = obtenerDemoraPreparacion(maquinaFabricacion, tipoPomoAProducir);
 			
 				terminaFabricacionEv.tiempo = T + demora + obtenerDemoraDeFabricacion(pedidoAFabricar);
@@ -314,6 +331,7 @@
 				var unPedido = obtenerPedidoDe(maquinaImpresion, tipoPomoAProducir);
 				var demora = obtenerDemoraPreparacion(maquinaImpresion, tipoPomoAProducir);
 				terminaImpresionEv.tiempo = T  + demora + obtenerDemoraDeImpresion(unPedido.tamanioPedido);
+				unPedido.tiempoComienzo = unPedido.tipoPedido == 'FIE' ? unPedido.tiempoComienzo : T;
 			}
 			else {
 				instanteTiempoOciosoImpresion = T;
@@ -409,7 +427,7 @@
 			cantidadPedidosFIE++;
 			ubicarEnColaDe(maquinaFabricacion,unPedido);
 			if(maquinaFabricacion.numeroCola1 + maquinaFabricacion.numeroCola2 == 1){
-			
+				unPedido.tiempoComienzo = T;
 				actualizarEstadoMaquina(maquinaFabricacion);
 				var demora = obtenerDemoraPreparacion(maquinaFabricacion, obtenerTipoPomoAProducir(maquinaFabricacion));
 				terminaFabricacionEv.tiempo = T + demora + obtenerDemoraDeFabricacion(unPedido);
@@ -423,7 +441,7 @@
 			ubicarEnColaDe(maquinaImpresion,unPedido);
 
 			if(maquinaImpresion.numeroCola1 + maquinaImpresion.numeroCola2 == 1){
-
+				unPedido.tiempoComienzo = T;
 				actualizarEstadoMaquina(maquinaImpresion);
 
 				var demora = obtenerDemoraPreparacion(maquinaImpresion , obtenerTipoPomoAProducir(maquinaImpresion));
@@ -544,10 +562,16 @@
 			}
 		}
 		function sumarTiempoProduccion(unPedido){
-			if(unPedido.tipoPedido == 'FIE')
+			if(unPedido.tipoPedido == 'FIE'){
+				cantidadPedidosTerminadosFIE++;
 				sumatoriaTiempoProduccionFIE += (T - unPedido.tiempoComienzo);
-			else
+				agregarDatos(T, sumatoriaTiempoProduccionFIE/cantidadPedidosTerminadosFIE, datosFIE);
+			}
+			else{
+				cantidadPedidosTerminadosIE++;
 				sumatoriaTiempoProduccionIE += (T - unPedido.tiempoComienzo);
+				agregarDatos(T, sumatoriaTiempoProduccionIE/cantidadPedidosTerminadosIE, datosIE);
+			}
 		}
 		function sumarGanancia(pedido){
 			if(pedido.tipoPedido == 'FIE')
@@ -566,14 +590,18 @@
 		}
 		function evaluarCostoQuincena(){
 			var quincenaActual = Math.floor(T / (15*8*60));
+			
 			if(quincenaActual > ultimaQuincena){
+				agregarDatos(ultimaQuincena + 2, costoQuincena, datosCostoPorQuincena);
 				ultimaQuincena = quincenaActual;
 				if(costoQuincena > maximoCostoQuincena){
 					maximoCostoQuincena = costoQuincena;
-					costoQuincena = 0;
+			
 				}
+				costoQuincena = 0;
 			}
 		}
+
 		function calculoDeResultados(){
 			porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaFabricacion = 
 				(maquinaFabricacion.sumatoriaDemoraPreparacionMaquina * 100)/T;
@@ -602,9 +630,9 @@
 			
 			$('#PTOE2').text('Porcentaje de tiempo ocioso empaque 2: ' + porcentajeDeTiempoOciosoEmpaque2.toFixed(2)); 
 
-			$('#PTPFI').text('Promedio de tiempo de producción FIE: ' + promedioTiempoProduccionFIE.toFixed(2)); 
+			$('#PTPFI').text('Promedio de tiempo de permanencia FIE: ' + promedioTiempoProduccionFIE.toFixed(2)); 
 			
-			$('#PTPI').text('Promedio de tiempo de producción IE: ' + promedioTiempoProduccionIE.toFixed(2)); 
+			$('#PTPI').text('Promedio de tiempo de permanencia IE: ' + promedioTiempoProduccionIE.toFixed(2)); 
 			
 			$('#CT').text('Costo total: ' + costoTotal.toFixed(2)); 
 			
@@ -620,10 +648,13 @@
 		}
 		function mostrarGraficos(){
 
-			crearGraficoStock(datosStockPlastico, 'graficoPlastico');
-			crearGraficoStock(datosStockCajas, 'graficoCajas');
-			crearGraficoStock(datosStockPintura, 'graficoPintura');
-			crearGraficoStock(datosStockLaca, 'graficoLaca');
+			crearGraficoLinea(datosStockPlastico, 'graficoPlastico' , 'Stock');
+			crearGraficoLinea(datosStockCajas, 'graficoCajas' , 'Stock');
+			crearGraficoLinea(datosStockPintura, 'graficoPintura' , 'Stock');
+			crearGraficoLinea(datosStockLaca, 'graficoLaca' , 'Stock');
+			crearGraficoLinea(datosCostoPorQuincena , 'graficoQuincena' , 'Costo quincenal')
+			crearGraficoLinea(datosFIE, 'graficoFIE' , 'Promedio de tiempo de producción FIE')
+			crearGraficoLinea(datosIE, 'graficoIE' , 'Promedio de tiempo de producción IE')
 			modificarVisibilidad();
 
 		}
@@ -631,14 +662,14 @@
 			$('#graficos').css('visibility', 'visible');
 			$('#resultados').css('visibility', 'visible');
 		}
-		function agregarDatos(T, stock, datosStock){
+		function agregarDatos(T, valor, arrayDatos){
 			datos = new Object();
 			datos.tiempo = Math.round(T);
-			datos.stock = stock.toFixed(2);
-			datosStock.push(datos);
+			datos.valor = valor.toFixed(2);
+			arrayDatos.push(datos);
 
 		}
-		function crearGraficoStock(datos, elemento){
+		function crearGraficoLinea(datos, elemento , label){
 						new Morris.Line({
 			  // ID of the element in which to draw the chart.
 			  element: elemento,
@@ -648,10 +679,10 @@
 			  // The name of the data record attribute that contains x-values.
 			  xkey: 'tiempo',
 			  // A list of names of data record attributes that contain y-values.
-			  ykeys: ['stock'],
+			  ykeys: ['valor'],
 			  // Labels for the ykeys -- will be displayed when you hover over the
 			  // chart.
-			  labels: ['Stock'],
+			  labels: [label],
 			  parseTime: false
 			});
 
@@ -828,6 +859,18 @@
 			<div class="col-md-6">
 				 <label for="usr" id="labelPintura" >Gráfico evolución stock pintura (G):</label>
 				 <div id="graficoPintura" style="height: 250px;"></div>
+			</div>
+			<div class="col-md-6">
+				 <label for="usr" id="labelCostoQuincenal" >Gráfico costo quincenal:</label>
+				 <div id="graficoQuincena" style="height: 250px;"></div>
+			</div>
+			<div class="col-md-6">
+				 <label for="usr" id="labelFIE" >Gráfico promedio tiempo producción FIE:</label>
+				 <div id="graficoFIE" style="height: 250px;"></div>
+			</div>
+			<div class="col-md-6">
+				 <label for="usr" id="labelIE" >Gráfico promedio tiempo producción IE:</label>
+				 <div id="graficoIE" style="height: 250px;"></div>
 			</div>
 		</div>
    </body>
