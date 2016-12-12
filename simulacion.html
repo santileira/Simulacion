@@ -2,6 +2,10 @@
    <head>
    <title>Simulacion</title>
    <link href="bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+   <link href="morris.1/morris.css" rel="stylesheet">
+   <script src="jquery.js"></script>
+   <script src="raphael-2.1.4/raphael.js"></script>
+   <script src="morris.1/morris.js"></script>
    <script type="text/javascript">
 		var NF1, NF2, NI1, NI2, NE, STP, STL, STPL, STC;//estado
 		var M, N, SRC, SRPL, TPPL, TPC; //control
@@ -28,8 +32,24 @@
 		var colaB1I;
 		var colaB2I;
 		var colaE;
-		var numeroColas;		
-	
+		var numeroColas;	
+		var datosStockPlastico;	
+		var datosStockCajas;
+		var datosStockLaca;
+		var datosStockPintura;
+
+		function inicializarGraficos(){
+			datosStockPlastico = new Array();
+			datosStockCajas = new Array();
+			datosStockLaca = new Array();
+			datosStockPintura = new Array();
+			$('#graficoPlastico').empty();
+			$('#graficoCajas').empty();
+			$('#graficoLaca').empty();
+			$('#graficoPintura').empty();
+
+
+		}
 		function creacion(){
 			llegadaPedidoEv = new Object();
 			terminaImpresionEv = new Object();
@@ -48,8 +68,9 @@
 			colaB1I = new Array();
 			colaB2I = new Array();
 			colaE = new Array();
-			numeroColas = new Array(maquinaFabricacion.numeroCola1,maquinaFabricacion.numeroCola2
-									,maquinaImpresion.numeroCola1,maquinaImpresion.numeroCola2,NE);	
+			numeroColas = new Array(maquinaFabricacion.numeroCola1,maquinaFabricacion.numeroCola2, maquinaImpresion.numeroCola1,
+				maquinaImpresion.numeroCola2,NE);
+		
 		}
 
 		function obtenerInformacionDeInput(){
@@ -72,6 +93,12 @@
 			STL = 20;
 			STPL = TPPL;
 			STC = TPC;
+
+			agregarDatos(0,STPL,datosStockPlastico);
+			agregarDatos(0,STC,datosStockCajas);
+			agregarDatos(0,STP*1000,datosStockPintura);
+			agregarDatos(0,STL,datosStockLaca);
+			
 			//
 			T = 0;
 			TF = 75000;
@@ -154,6 +181,7 @@
 			//srand(time(NULL));
 			creacion();
 			obtenerInformacionDeInput();
+			inicializarGraficos();
 			inicializacion();
 			inicializarMaquinas();
 			inicializarEventos();
@@ -169,6 +197,7 @@
 			
 			calculoDeResultados();
 			impresionDeResultados();
+			mostrarGraficos();
 
 		}
 		
@@ -235,6 +264,7 @@
 
 			var pedidoParaImpresion = sacarPedidoTerminadoDe(maquinaFabricacion);
 			consumirPlastico(pedidoParaImpresion);
+			agregarDatos(T,STPL,datosStockPlastico);
 			ubicarEnColaDe(maquinaImpresion , pedidoParaImpresion);
 
 			if(maquinaFabricacion.numeroCola1 > 0 || maquinaFabricacion.numeroCola2 > 0){
@@ -273,7 +303,9 @@
 			ubicarEnColaDeEmpaque(pedidoParaEmpacado);
 
 			consumirPintura(pedidoParaEmpacado.tamanioPedido);
+			agregarDatos(T,STP*1000,datosStockPintura);
 			consumirLaca(pedidoParaEmpacado);
+			agregarDatos(T,STL,datosStockLaca);
 
 			if(maquinaImpresion.numeroCola1 > 0 || maquinaImpresion.numeroCola2 > 0){
 
@@ -315,8 +347,10 @@
 			var pedidoTerminado = sacarPedidoTerminadoDeEmpacado();			
 			sumarTiempoProduccion(pedidoTerminado);
 
-			if(pedidoTerminado.tipoPedido == 'FIE')			
+			if(pedidoTerminado.tipoPedido == 'FIE'){	
 				consumirCajas(pedidoTerminado);
+				agregarDatos(T,STC,datosStockCajas);
+			}
 
 			if(NE > 1){
 				var pedidoAEmpacar = obtenerPedidoAEmpacar();
@@ -334,21 +368,27 @@
 		function reposicionPlastico(){
 			cantidadPedidosPlastico++;
 			sumarPermanenciaEnElSistema(reposicionPlasticoEv.tiempo);
+			T = reposicionPlasticoEv.tiempo;
 			STPL = STPL + TPPL;
+			agregarDatos(T,STPL,datosStockPlastico);
 			reposicionPlasticoEv.tiempo = HV;
 			
 			sumarCosto(30 * TPPL + 1200);
 		}
 		function reposicionLaca(){
 			sumarPermanenciaEnElSistema(reposicionLacaEv.tiempo);
+			T = reposicionLacaEv.tiempo;
 			STL = STL + 20;
+			agregarDatos(T,STL,datosStockLaca);
 			reposicionLacaEv.tiempo = HV;
 			
 			sumarCosto(1500);
 		}
 		function reposicionPintura(){
 			sumarPermanenciaEnElSistema(reposicionPinturaEv.tiempo);
+			T = reposicionPinturaEv.tiempo;
 			STP = STP + 5;
+			agregarDatos(T,STP*1000,datosStockPintura);
 			reposicionPinturaEv.tiempo = HV;
 			
 			sumarCosto(2000);
@@ -356,7 +396,9 @@
 		function reposicionCajas(){
 			cantidadPedidosCaja++;
 			sumarPermanenciaEnElSistema(reposicionCajasEv.tiempo);
+			T = reposicionCajasEv.tiempo;
 			STC = STC + TPC;
+			agregarDatos(T,STC,datosStockCajas);
 			reposicionCajasEv.tiempo = HV;
 			
 			sumarCosto(14 * TPC);
@@ -548,24 +590,71 @@
 		}
 		function impresionDeResultados(){
 
-			console.log("Tiempo utilizado en preparación de máquina fabricación " + 
-				maquinaFabricacion.sumatoriaDemoraPreparacionMaquina);
-			console.log("Tiempo utilizado en preparación de máquina impresión " + 
-				maquinaImpresion.sumatoriaDemoraPreparacionMaquina);
-			console.log("Porcentaje de tiempo utilizado para fabricación " + porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaFabricacion);
-			console.log("Porcentaje de tiempo utilizado para impresión " + porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaImpresion);
-			console.log("Porcentaje de tiempo ocioso fabricación " + porcentajeDeTiempoOciosoFabricacion);
-			console.log("Porcentaje de tiempo ocioso impresión " + porcentajeDeTiempoOciosoImpresion);
-			console.log("Porcentaje de tiempo ocioso empaque 1 " + porcentajeDeTiempoOciosoEmpaque1);
-			console.log("Porcentaje de tiempo ocioso empaque 2 " + porcentajeDeTiempoOciosoEmpaque2);
-			console.log("Promedio de tiempo producción FIE " + promedioTiempoProduccionFIE);
-			console.log("Promedio de tiempo producción IE " + promedioTiempoProduccionIE);
-			console.log("Costo total " + costoTotal);
-			console.log("Maximo costo por quincena " + maximoCostoQuincena);
-			console.log("Promedio de costo por quincena " + promedioCostoQuincena);
-			console.log("Beneficio total " + beneficio);
-			console.log("Cantidad pedidos plastico " + cantidadPedidosPlastico);
-			console.log("Cantidad pedidos caja " + cantidadPedidosCaja);
+			$('#PTPMF').text('Porcentaje de tiempo utilizado en preparación de máquina fabricación: ' + porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaFabricacion.toFixed(2)); 
+
+			$('#PTPMI').text('Porcentaje de tiempo utilizado en preparación de máquina impresión: '+ porcentajeDeTiempoUtilizadoEnPreparacionDeMaquinaImpresion.toFixed(2)); 
+
+			$('#PTOF').text('Porcentaje de tiempo ocioso fabricación: ' + porcentajeDeTiempoOciosoFabricacion.toFixed(2)); 
+			
+			$('#PTOI').text('Porcentaje de tiempo ocioso impresión: ' + porcentajeDeTiempoOciosoImpresion.toFixed(2)); 
+			
+			$('#PTOE1').text('Porcentaje de tiempo ocioso empaque 1: ' + porcentajeDeTiempoOciosoEmpaque1.toFixed(2)); 
+			
+			$('#PTOE2').text('Porcentaje de tiempo ocioso empaque 2: ' + porcentajeDeTiempoOciosoEmpaque2.toFixed(2)); 
+
+			$('#PTPFI').text('Promedio de tiempo de producción FIE: ' + promedioTiempoProduccionFIE.toFixed(2)); 
+			
+			$('#PTPI').text('Promedio de tiempo de producción IE: ' + promedioTiempoProduccionIE.toFixed(2)); 
+			
+			$('#CT').text('Costo total: ' + costoTotal.toFixed(2)); 
+			
+			$('#MCQ').text('Máximo costo por quincena: ' + maximoCostoQuincena.toFixed(2)); 
+			
+			$('#PCQ').text('Promedio costo por quincena: ' + promedioCostoQuincena.toFixed(2)); 
+			
+			$('#B').text('Beneficio: ' + beneficio.toFixed(2)); 
+			
+			$('#CPPL').text('Cantidad de pedidos de plástico: ' + cantidadPedidosPlastico); 
+			
+			$('#CPC').text('Cantidad de pedidos de cajas: ' + cantidadPedidosCaja); 
+		}
+		function mostrarGraficos(){
+
+			crearGraficoStock(datosStockPlastico, 'graficoPlastico');
+			crearGraficoStock(datosStockCajas, 'graficoCajas');
+			crearGraficoStock(datosStockPintura, 'graficoPintura');
+			crearGraficoStock(datosStockLaca, 'graficoLaca');
+			modificarVisibilidad();
+
+		}
+		function modificarVisibilidad(){
+			$('#graficos').css('visibility', 'visible');
+			$('#resultados').css('visibility', 'visible');
+		}
+		function agregarDatos(T, stock, datosStock){
+			datos = new Object();
+			datos.tiempo = Math.round(T);
+			datos.stock = stock.toFixed(2);
+			datosStock.push(datos);
+
+		}
+		function crearGraficoStock(datos, elemento){
+						new Morris.Line({
+			  // ID of the element in which to draw the chart.
+			  element: elemento,
+			  // Chart data records -- each entry in this array corresponds to a point on
+			  // the chart.
+			  data: datos,
+			  // The name of the data record attribute that contains x-values.
+			  xkey: 'tiempo',
+			  // A list of names of data record attributes that contain y-values.
+			  ykeys: ['stock'],
+			  // Labels for the ykeys -- will be displayed when you hover over the
+			  // chart.
+			  labels: ['Stock'],
+			  parseTime: false
+			});
+
 		}
 		///////////////////////////////////////FDP////////////////////////////////////////////////
 		function obtenerIntervaloPedido(){//IP
@@ -655,33 +744,91 @@
    </script>
    </head>
    <body>
-	   <div class="input-group">
-	  		<input id="M" type="text" class="form-control" placeholder="Tipo a producir consecutivos">
-	   </div>
-	 
-		<div class="input-group">
-	  		<input id="N" type="text" class="form-control" placeholder="Tipo a imprimir consecutivos">
-		</div>
-	 
-		<div class="input-group">
-	  		<input id="SRC" type="text" class="form-control" placeholder="Stock de reposición de cajas">
-		</div>
+   		<div class = "col-md-12">
+   			<div class= "col-md-6">
+			   <div class="form-group" style="margin : 10px 10px !important;    width: 270px;">
+				  <label for="usr">Tipo de pomos a fabricar consecutivos:</label>
+				  <input type="text" class="form-control" id="M">
+				</div>
 
-		<div class="input-group">
-	  		<input id="TPC" type="text" class="form-control" placeholder="Tamaño pedido cajas">
+			 	<div class="form-group" style="margin : 10px 10px !important;    width: 270px;">
+				  <label for="usr">Tipo de pomos a imprimir consecutivos:</label>
+				  <input type="text" class="form-control" id="N">
+				</div>
+
+				<div class="form-group" style="margin : 10px 10px !important;    width: 270px;">
+				  <label for="usr">Stock de reposición de cajas:</label>
+				  <input type="text" class="form-control" id="SRC">
+				</div>	   
+				
+				<div class="form-group" style="margin : 10px 10px !important;    width: 270px;">
+				  <label for="usr">Tamaño pedido cajas:</label>
+				  <input type="text" class="form-control" id="TPC">
+				</div>	   
+				
+
+				<div class="form-group" style="margin : 10px 10px !important;    width: 270px;">
+				  <label for="usr">Stock de reposición de plástico:</label>
+				  <input type="text" class="form-control" id="SRPL">
+				</div>	   
+
+				<div class="form-group" style="margin : 10px 10px !important;    width: 270px;">
+				  <label for="usr">Tamaño pedido plástico:</label>
+				  <input type="text" class="form-control" id="TPPL">
+				</div>	  
+			   
+				<div class="btn-group" role="group" aria-label="..." style="margin : 10px 10px !important" >
+			  		<button id="iniciarSimulacion" type="button" class="btn btn-primary" onclick="iniciarSimulacion();">Correr Simulación</button>
+				</div>
+			</div>
+			<div class= "col-md-6" style="visibility: hidden" id="resultados">
+				<label style="margin : 5px 5px !important" for="usr" id="PTPMF" ></label>
+				
+				<label style="margin : 5px 5px !important" for="usr" id="PTPMI" > </label>
+				
+				<label style="margin : 5px 5px !important" for="usr" id="PTOF" ></label>
+				<br>
+				<label style="margin : 5px 5px !important" for="usr" id="PTOI" ></label>
+				<br>
+				<label style="margin : 5px 5px !important" for="usr" id="PTOE1" ></label>
+				<br>
+				<label style="margin : 5px 5px !important" for="usr" id="PTOE2" > </label>
+				<br>
+				<label style="margin : 5px 5px !important" for="usr" id="PTPFI" ></label>
+				<br>
+				<label style="margin : 5px 5px !important" for="usr" id="PTPI" > </label>
+				<br>
+				<label style="margin : 5px 5px !important" for="usr" id="CT" > </label>
+				<br>
+				<label style="margin : 5px 5px !important" for="usr" id="MCQ" > </label>
+				<br>
+				<label style="margin : 5px 5px !important" for="usr" id="PCQ" > </label>
+				<br>
+				<label style="margin : 5px 5px !important" for="usr" id="B"  ></label>
+				<br>
+				<label style="margin : 5px 5px !important" for="usr" id="CPPL" > </label>
+				<br>
+				<label style="margin : 5px 5px !important" for="usr" id="CPC" > </label>
+			</div>
 		</div>
 		
-		<div class="input-group">
-	  		<input id="SRPL" type="text" class="form-control" placeholder="Stock de reposición de plástico">
+		<div class="col-md-12" id="graficos" style="visibility:hidden;">
+			<div class="col-md-6">
+				 <label for="usr" id="labelCajas">Gráfico evolución stock cajas:</label>
+				 <div id="graficoCajas" style="height: 250px;"></div>
+			</div>
+			<div class="col-md-6">
+				 <label for="usr" id="labelPlastico" >Gráfico evolución stock plástico (KG): </label>
+				 <div id="graficoPlastico" style="height: 250px;"></div>
+			</div>
+			<div class="col-md-6">
+				 <label for="usr" id="labelLaca" >Gráfico evolución stock laca (KG):</label>
+				 <div id="graficoLaca" style="height: 250px;"></div>
+			</div>
+			<div class="col-md-6">
+				 <label for="usr" id="labelPintura" >Gráfico evolución stock pintura (G):</label>
+				 <div id="graficoPintura" style="height: 250px;"></div>
+			</div>
 		</div>
-		
-		<div class="input-group">
-	  		<input id="TPPL" type="text" class="form-control" placeholder="Tamaño pedido plástico">
-		</div>
-	   
-		<div class="btn-group" role="group" aria-label="...">
-	  		<button id="iniciarSimulacion" type="button" class="btn btn-primary" onclick="iniciarSimulacion();">Correr Simulación</button>
-		</div>
-
    </body>
    </html>
